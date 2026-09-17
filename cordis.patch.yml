@@ -8,5 +8,3 @@
 - insert:
     - id: win2k
       name: 'dsh-win2k'
-      config:
-        enabled: true
