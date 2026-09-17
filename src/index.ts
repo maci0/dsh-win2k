@@ -1,22 +1,105 @@
 /**
  * dsh-win2k — Windows 2000 theme, as a DeepSeek Harness plugin.
  *
- * The whole plugin is the browser half (`lib/client.js`): it registers a
- * `ctx.theme` definition whose alias-token overrides repaint the Web client in
- * the Windows 2000 registry colours, and appends the chrome a token cannot
- * express (square corners, MS Sans Serif, the beveled scrollbar). The
- * Appearance row in Settings → General lists registered themes, so
- * `Windows 2000` appears there beside light/dark/system and persists like any
- * other choice.
+ * Two capabilities, both on public Cordis extension points:
  *
- * This node half exists because a Loader row names a package, and the package
- * needs a module to load. It registers nothing model-facing and owns no state.
+ * - the browser half registers a `ctx.theme` definition whose alias-token
+ *   overrides repaint the Web client in the Windows 2000 registry colours, and
+ *   appends the chrome a token cannot express (square corners, MS Sans Serif,
+ *   the beveled scrollbar);
+ * - the `win2k` settings namespace makes the choice persistent and pairs with
+ *   the browser half's own cube in Settings → General, which sits directly
+ *   under the built-in Appearance cubes and wears the same cube chrome.
+ *
+ * The stock Appearance row renders three hardcoded cubes and the durable theme
+ * schema accepts only `light`/`dark`/`system`, so a registered theme cannot
+ * enter that row from outside core. This plugin therefore draws its own cube
+ * through the public `settings.general.item` slot and keeps the choice in its
+ * own namespace — no core change, and no second copy of another plugin's
+ * control.
  *
  * @module dsh-win2k
  */
 
+import z from '@deepseek-ai/schemastery'
+
 /** Plugin name as it appears in the loader. */
 export const name = 'win2k'
 
-/** Mount the plugin: intentionally empty — the theme lives in the browser half. */
-export function apply(): void {}
+/**
+ * Settings namespace the browser cube edits — the join key between this host
+ * half and `lib/client.js`.
+ */
+export const WIN2K_SETTINGS_NAMESPACE = 'win2k'
+
+/**
+ * Persisted configuration. `selected` is the plugin's own flag rather than the
+ * theme service's preference: the `ui-theme` document holds built-in ids only,
+ * and a third-party id cannot be written there.
+ */
+export const Win2kSettings = z.object({
+  selected: z.boolean().default(false),
+})
+
+/**
+ * Configuration accepted from this plugin's row in a profile patch.
+ *
+ * No Schemastery `Config` schema is exported: the loader would require a
+ * Standard Schema for it, and this plugin validates its own row instead so the
+ * loader never has to.
+ */
+export interface Config {
+  /** Start with the theme applied. Defaults to `false`: the cube is the switch. */
+  readonly selected?: boolean
+}
+
+/** The slice of the settings service this plugin uses. */
+export interface SettingsServiceLike {
+  /**
+   * Register a namespace with the plugin's composition entry as the `base`
+   * layer, falling back to that entry when no provider is mounted.
+   */
+  installSection(
+    owner: unknown,
+    namespace: string,
+    schema: unknown,
+    entry: unknown,
+    hooks: {
+      setSource(current: () => unknown): void
+      onChange(): void
+    },
+  ): void
+}
+
+/** Hooks the host context exposes to this plugin. */
+export interface HostContext {
+  /** Run `callback` once the named services are available. */
+  inject(dependencies: readonly string[], callback: (scope: HostContext) => void): unknown
+  readonly settings: SettingsServiceLike
+}
+
+/**
+ * Mount the plugin.
+ * @param ctx - the host context.
+ * @param config - optional row configuration.
+ */
+export function apply(ctx: HostContext, config: Config = {}): void {
+  // Reject configuration that would silently do the wrong thing.
+  if (config.selected !== undefined && typeof config.selected !== 'boolean') {
+    throw new Error(`[win2k] selected must be a boolean; got ${JSON.stringify(config.selected)}`)
+  }
+
+  const startup = config.selected ?? false
+
+  ctx.inject(['settings'], (scope) => {
+    scope.settings.installSection(
+      ctx,
+      WIN2K_SETTINGS_NAMESPACE,
+      Win2kSettings,
+      { selected: startup },
+      // The browser half owns every consequence of this value; the node half
+      // only stores it, so both hooks stay empty on purpose.
+      { setSource: () => {}, onChange: () => {} },
+    )
+  })
+}
