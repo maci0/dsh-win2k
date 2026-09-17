@@ -47,18 +47,18 @@ interface Snapshot {
 }
 
 interface Harness {
-  registered: { id: string; label?: string; colorScheme: string; tokens: Record<string, string> }[]
+  layers: { source: string; tokens: Record<string, { light: string; dark: string }> }[]
   rows: { entry: Record<string, unknown>; component: () => Element | null }[]
   appended: { textContent: string }[]
   attributes: Map<string, boolean>
   writes: unknown[][]
   locales: string[]
-  theme: { registered: unknown[]; get preference(): string }
+  theme: { layers: Harness['layers']; get preference(): string }
   react: ReactStub
   /** Drive one settings snapshot through the plugin's scope subscription. */
   publish: (next: Snapshot) => void
-  /** Drive one theme snapshot through the plugin's `theme/change` listener. */
-  publishTheme: (activeId: string) => void
+  /** Drive one theme preference change, the way a built-in cube click does. */
+  publishTheme: (preference: string) => void
   /** Drop the plugin the way an unload does. */
   dispose: () => void
 }
@@ -66,13 +66,12 @@ interface Harness {
 /** Load the bundle the way the client module system does and apply it. */
 function mount(snapshot: Snapshot): Harness {
   const react = createReactStub()
-  const registered: Harness['registered'] = []
+  const layers: Harness['layers'] = []
   const rows: Harness['rows'] = []
   const appended: { textContent: string }[] = []
   const attributes = new Map<string, boolean>()
   const writes: unknown[][] = []
   const locales: string[] = []
-  const themeListeners: ((activeId: string) => void)[] = []
   const settingsListeners: ((snapshot: Snapshot) => void)[] = []
   const disposers: (() => void)[] = []
 
@@ -86,18 +85,23 @@ function mount(snapshot: Snapshot): Harness {
     set: async (field: string, value: unknown): Promise<void> => { writes.push([field, value]) },
   }
 
-  const themeState = { preference: 'system', active: 'light' }
+  // The durable preference is a built-in and stays one: win2k stacks a token
+  // layer above it instead of registering a third-party preference id.
+  const themeState = { preference: 'system' }
   const theme = {
-    register: (definition: Harness['registered'][number]): (() => void) => {
-      registered.push(definition)
-      return () => {}
+    overrideTokens: (
+      source: string,
+      tokens: Record<string, { light: string; dark: string }>,
+    ): (() => void) => {
+      layers.push({ source, tokens })
+      return () => {
+        const index = layers.findIndex(entry => entry.source === source)
+        if (index >= 0) layers.splice(index, 1)
+      }
     },
-    getTheme: () => ({ preference: themeState.preference, active: { id: themeState.active }, themes: [] }),
-    setTheme: (id: string): void => {
-      themeState.preference = id
-      themeState.active = id === 'system' ? 'light' : id
-      for (const listener of themeListeners) listener(themeState.active)
-    },
+    register: (): void => { throw new Error('win2k must not register a theme id') },
+    setTheme: (): void => { throw new Error('win2k must not move the durable preference') },
+    getTheme: () => ({ preference: themeState.preference, active: { id: themeState.preference }, themes: [] }),
   }
 
   const ctx = {
@@ -117,10 +121,7 @@ function mount(snapshot: Snapshot): Harness {
       if (typeof disposer === 'function') disposers.push(disposer as () => void)
       return disposer
     },
-    on: (_event: string, listener: (activeId: string) => void): (() => void) => {
-      themeListeners.push(listener)
-      return () => {}
-    },
+    on: (): (() => void) => () => {},
     slots: {
       inject: (_name: string, callback: () => unknown): void => { callback() },
       register: (entry: Record<string, unknown>, component: () => Element | null) => {
@@ -160,7 +161,7 @@ function mount(snapshot: Snapshot): Harness {
   ;(exported['apply'] as (ctx: unknown) => void)(ctx)
 
   return {
-    registered,
+    layers,
     rows,
     appended,
     attributes,
@@ -168,18 +169,16 @@ function mount(snapshot: Snapshot): Harness {
     locales,
     react,
     theme: {
-      registered,
-      /** Live read: the applier keeps moving the preference after the mount. */
+      layers,
+      /** Live read: the durable preference stays a built-in. */
       get preference(): string { return themeState.preference },
     },
     publish: (next: Snapshot): void => {
       current = next
       for (const listener of settingsListeners) listener(next)
     },
-    publishTheme: (activeId: string): void => {
-      themeState.preference = activeId
-      themeState.active = activeId === 'system' ? 'light' : activeId
-      for (const listener of themeListeners) listener(themeState.active)
+    publishTheme: (preference: string): void => {
+      themeState.preference = preference
     },
     dispose: (): void => {
       for (const disposer of disposers.reverse()) disposer()
@@ -205,18 +204,21 @@ function walk(node: unknown, found: Element[] = []): Element[] {
 const off: Snapshot = { status: 'ready', value: { selected: false }, writable: true }
 const on: Snapshot = { status: 'ready', value: { selected: true }, writable: true }
 
-test('the bundle registers one light theme and its locale dictionary', () => {
+test('the bundle stacks one token layer and its locale dictionary', () => {
   const harness = mount(off)
-
-  assert.equal(harness.registered.length, 1)
-  const definition = harness.registered[0]
-  assert.equal(definition?.id, 'win2k')
-  assert.equal(definition?.colorScheme, 'light')
-  assert.equal(definition?.tokens['--dsw-alias-bg-base'], '#ffffff')
-  assert.equal(definition?.tokens['--dsw-specific-sidebar-fill'], '#d4d0c8')
-  assert.equal(definition?.tokens['--dsw-alias-border-l4'], '#404040')
-  assert.match(definition?.tokens['--dsw-font-family'] ?? '', /MS Sans Serif/)
+  assert.equal(harness.layers.length, 0, 'off: no layer stacked')
   assert.deepEqual(harness.locales, ['win2k'])
+
+  harness.publish(on)
+  assert.equal(harness.layers.length, 1)
+  const layer = harness.layers[0]
+  assert.equal(layer?.source, 'win2k')
+  // One value per color scheme: the skin must not go illegible when the user's
+  // underlying preference is dark.
+  assert.deepEqual(layer?.tokens['--dsw-alias-bg-base'], { light: '#ffffff', dark: '#ffffff' })
+  assert.deepEqual(layer?.tokens['--dsw-specific-sidebar-fill'], { light: '#d4d0c8', dark: '#d4d0c8' })
+  assert.deepEqual(layer?.tokens['--dsw-alias-border-l4'], { light: '#404040', dark: '#404040' })
+  assert.match(layer?.tokens['--dsw-font-family']?.light ?? '', /MS Sans Serif/)
 })
 
 test('the chrome sheet is appended once and stays scoped to the active theme', () => {
@@ -237,34 +239,42 @@ test('the chrome sheet is appended once and stays scoped to the active theme', (
   }
 })
 
-test('the scope attribute follows the active theme and is retracted on unload', () => {
+test('the scope attribute and the token layer follow the flag and retract on unload', () => {
   const harness = mount(off)
-  // Mounted under the default light palette: the attribute is off, so the
-  // chrome sheet is inert until the theme is selected.
+  // Mounted with the skin off: no layer, so the chrome sheet is inert.
   assert.equal(harness.attributes.get('data-dsw-win2k'), false)
+  assert.equal(harness.layers.length, 0)
 
   harness.publish(on)
-  assert.equal(harness.theme.preference, 'win2k')
   assert.equal(harness.attributes.get('data-dsw-win2k'), true)
+  assert.equal(harness.layers.length, 1)
+  assert.equal(harness.theme.preference, 'system', 'the durable preference is never moved')
 
   harness.publish(off)
-  assert.equal(harness.theme.preference, 'system')
   assert.equal(harness.attributes.get('data-dsw-win2k'), false)
+  assert.equal(harness.layers.length, 0, 'the layer is retracted, restoring the base theme')
 
+  harness.publish(on)
   harness.dispose()
   assert.equal(harness.attributes.get('data-dsw-win2k'), undefined)
+  assert.equal(harness.layers.length, 0, 'unload releases the layer')
 })
 
-test('a persisted selection survives startup and a built-in click bounces back', () => {
-  // The durable preference is a built-in: the flag is what re-applies win2k.
+test('a persisted selection re-stacks on startup and outlives a built-in click', () => {
+  // The durable preference is a built-in; the flag is what keeps the skin on.
   const harness = mount(on)
-  assert.equal(harness.theme.preference, 'win2k')
+  assert.equal(harness.theme.preference, 'system', 'win2k never takes the preference')
+  assert.equal(harness.layers.length, 1)
 
+  // A click on Light/Dark writes the durable preference. The skin stays on top.
   harness.publishTheme('dark')
-  assert.equal(harness.theme.preference, 'win2k', 'the flag outranks a built-in click')
+  assert.equal(harness.theme.preference, 'dark')
+  assert.equal(harness.layers.length, 1, 'a built-in click cannot drop the skin')
 
-  harness.publish(off)
-  assert.equal(harness.theme.preference, 'system', 'the preference captured before forcing comes back')
+  // Reload: the same durable preference and the same flag produce the layer.
+  const reloaded = mount(on)
+  assert.equal(reloaded.theme.preference, 'system')
+  assert.equal(reloaded.layers.length, 1)
 })
 
 test('the row is ordered under the Appearance row and its cube drives the flag', () => {
@@ -282,7 +292,7 @@ test('the row is ordered under the Appearance row and its cube drives the flag',
   ;(cube?.props['onClick'] as () => void)()
 
   assert.deepEqual(harness.writes, [['selected', true]])
-  assert.equal(harness.theme.preference, 'system', 'the theme waits for the document to hold the choice')
+  assert.equal(harness.layers.length, 0, 'the layer waits for the document to hold the choice')
 })
 
 test('a read-only deployment still applies the cube for the session', () => {
@@ -291,7 +301,7 @@ test('a read-only deployment still applies the cube for the session', () => {
   ;(cube?.props['onClick'] as () => void)()
 
   assert.deepEqual(harness.writes, [], 'nothing is written where the document cannot hold it')
-  assert.equal(harness.theme.preference, 'win2k')
+  assert.equal(harness.layers.length, 1)
 })
 
 test('the host half registers the namespace with the row value and rejects a bad one', () => {
