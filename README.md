@@ -1,107 +1,78 @@
 # dsh-win2k
 
-**Windows 2000 theme for DeepSeek Harness.**
+A working agent UI wearing 2000-era chrome.
 
-The palette is the Windows 2000 registry colour set (`HKCU\Control Panel\Colors`:
-ButtonFace `#d4d0c8`, ActiveTitle `#0a246a`, Window `#ffffff`, GrayText `#808080`,
-ButtonDkShadow `#404040`, InfoWindow `#ffffe1`) mapped onto the Web client's
-`--dsw-alias-*` tokens — the same values the win2k theme sheets in this author's
-other projects carry (`clanker/themes/win2k.json`).
+Grey face panels, a white document well, navy selection, hard-square corners, MS Sans Serif — repainted live inside the Web client. No fork, no core patch: a token layer plus one stylesheet.
 
-| Capability | Extension point | Effect |
-|---|---|---|
-| Theme | `ctx.theme.register()` | Registers `win2k` (`colorScheme: 'light'`) with the alias-token overrides that repaint every surface: grey face chrome, white document well, navy accent, black/grey ink, `#ffffe1` tips. |
-| Cube | `settings.general.item` (order 12) | A **Theme** row with a **Windows 2000** cube directly under the built-in Appearance cubes, wearing their chrome. Clicking it applies the theme and persists the choice. |
-| Chrome | plugin-owned `<style>` tag | What a token cannot spell: square corners (`--dsw-corner-shape: square`), **MS Sans Serif** and Lucida Console, navy `::selection`, black-framed hard shadows on menus and dialogs, and the 16px beveled dithered scrollbar. Every rule is scoped under `body[data-dsw-win2k]`, so the sheet is inert under light/dark/system. |
-| Persistence | `ctx.settings.installSection()` | The `win2k` settings namespace holds `selected`, so the theme comes back after a reload and is switchable from the cube. |
-| Row config | `Config` schema + `apply(ctx, config)` | `selected: true\|false` sets the composition-layer default; the exported Schemastery schema validates the row and fills the default, and `apply` re-checks the value so a direct caller fails too. |
+## What you get
 
-## Why its own cube, not the Appearance row
-
-The stock Appearance row renders three hardcoded cubes (Light, Dark, System)
-and the durable `ui-theme` schema accepts only those three ids, so a theme
-registered through `ctx.theme` has nowhere to appear and no way to persist.
-This plugin therefore draws its own cube through the public
-`settings.general.item` slot — no core change, and no second copy of another
-plugin's control — and keeps the choice in its own namespace.
-
-While the cube is on, the applier re-forces `win2k` on every `theme/change`:
-clicking Light/Dark/System bounces back, and the row says so. That is
-deliberate. The durable theme preference cannot hold `win2k`, so the
-alternative — letting a built-in click win silently — would resurrect win2k on
-the next reload anyway, just without telling anyone.
+- **The palette.** The Windows 2000 registry colour set (`HKCU\Control Panel\Colors`: ButtonFace `#d4d0c8`, ActiveTitle `#0a246a`, Window `#ffffff`, GrayText `#808080`, ButtonDkShadow `#404040`, InfoWindow `#ffffe1`) mapped onto the `--dsw-alias-*` tokens, taken from the win2k sheets this author's other projects ship (`clanker/themes/win2k.json`). Tooltips and toasts get ActiveTitle navy; code blocks get a white client area with a grey banner.
+- **The chrome tokens cannot spell.** Square corners, `MS Sans Serif` body text with Lucida Console code, navy `::selection`, a black-framed 1px hard shadow where the base sheet blurs, and the 16px beveled dithered scrollbar. Firefox takes the standard `scrollbar-color` path instead of the WebKit dither.
+- **A Theme row in Settings → General.** One **Windows 2000** cube, sitting directly under the built-in Appearance cubes, wearing their chrome and geometry. It is a switch, not a fourth Appearance option.
+- **A choice that survives a reload.** Stored in this plugin's own `win2k` settings namespace, not in the durable theme preference.
 
 ## Install
 
 ```sh
-dsh plugin --profile web add https://github.com/maci0/dsh-win2k
+dsh plugin --profile web add github:maci0/dsh-win2k
 ```
 
-The package declares `dsh.bundle`, so `dsh plugin add` appends it to
-`dsh.profile.bundles` and applies its own `cordis.patch.yml` as a layer — no
-manual step. Refresh the page once: the client module graph is composed per
-index render.
-
-Or by hand in `~/.dsh/profiles/web`:
+The package declares `dsh.bundle`, so the CLI appends it to `dsh.profile.bundles` and applies its own `cordis.patch.yml` as a layer. Refresh later with:
 
 ```sh
-pnpm add github:maci0/dsh-win2k#v0.3.0
+dsh plugin --profile web update dsh-win2k
 ```
 
-Then merge `cordis.patch.yml` into `~/.dsh/profiles/web/cordis.patch.yml`.
-That file is live-watched, so saving it remounts the plugin:
+Then **restart `dsh web`** — bundle layers compose at boot.
 
-```yaml
-- insert:
-    - id: win2k
-      name: 'dsh-win2k'
-      config:
-        selected: true
-```
+Do not also insert the row by hand into your profile's `cordis.patch.yml` while the package is in `dsh.profile.bundles`: `insert` does not dedupe ids, and a second row mounts the plugin twice. To change the startup value instead, override the row in the profile patch — `- id: win2k` replaces the whole `config`.
 
-Pick one path, not both: `insert` does not dedupe ids, so merging that row by
-hand while the package is also in `dsh.profile.bundles` registers the plugin
-twice.
+## Use it
 
-## Verify
+Settings → General → Theme → **Windows 2000**.
 
-- Settings → General shows a **Theme** row under **Appearance** with a
-  **Windows 2000** cube; selecting it turns the shell grey-faced and
-  square-cornered, grows the scrollbars to 16px with a dithered track, and
-  drops the soft menu glow for a black frame.
-- Switching the cube off restores the previous built-in preference and leaves
-  the base palette clean.
-- `npm test` covers the registration, the sheet scoping, the cube wiring, the
-  applier, and the host namespace; none of it proves the *look*, which needs a
-  browser.
+Visible on click: panels and sidebar go `#d4d0c8` grey, the transcript column goes white, buttons and links go navy, every corner squares off, body text turns MS Sans Serif, and scrollbars grow to 16px with a dithered track and a raised thumb.
 
-## Layout
+Click it again to turn the skin off. The previous Light/Dark/System choice is still selected underneath — this layer never moved it.
 
-```
-src/index.ts        host plugin source: the win2k settings namespace (what persists the choice)
-lib/index.js        built host half — what `main` / `exports["."]` load; `lib/types/index.d.ts` carries its declarations
-lib/client.js       browser half: theme registration, chrome sheet, applier, cube row
-cordis.patch.yml
-tests/win2k.test.ts
-```
+## Configure
 
-`npm run build` regenerates `lib/index.js` and `lib/types/` from `src/`;
-`lib/client.js` is hand-authored and is not built.
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `selected` | `boolean` | `false` | Start with the skin applied. The cube is the switch, so the default is off. |
+
+The bundled `cordis.patch.yml` ships `selected: true`, so a fresh `dsh plugin add` starts skinned. The value lives in the `win2k` settings namespace; a deployment that cannot persist settings still applies the cube for the session.
+
+## How it works
+
+`ctx.theme.overrideTokens('win2k', …)` stacks a token layer above whatever built-in theme the user picked, with a `{ light, dark }` pair per token. Windows 2000 had one scheme, so both entries repeat the same value — the skin must not go illegible because the underlying preference is dark. Light/Dark/System keep working below it; the win2k colours win on top.
+
+The layer is the only shape that sticks. The durable `ui-theme` preference schema accepts built-in ids only (`light`/`dark`/`system`), so a third-party registered id could never be the persisted preference: the document kept saying light while the in-memory preference said win2k, and the skin lost to every settings write and reload. Release v0.4.1 replaced that with the override layer, owned by this plugin's own `selected` flag.
+
+The chrome sheet is scoped under `body[data-dsw-win2k]`, the attribute the browser half toggles from that same flag, so the sheet is inert while the skin is off. The module system claims the `<style>` tag while the package materializes and disposes it on unload, along with the token layer.
+
+The row registers into `settings.general.item` at **order 12**, directly under ui-theme's Appearance row at order 10. Injecting into the slot waits for its owner, so load order does not matter. A deployment whose settings service does not serve this namespace renders no row at all.
 
 ## Deliberately not included
 
-- **The win2k cursors.** The reference sheet carries twelve SVG data-URL
-  pointers (`%SystemRoot%\cursors`, hotspots included). Most users never notice
-  a custom pointer, and it is a screenful of string noise.
-- **Title bar, taskbar, Start menu, common dialogs.** This page has no such
-  markup.
-- **Period metrics.** 16px touch targets and 23px push buttons would fight the
-  client's own minimums and keyboard affordances.
-- **A focus ring restyle.** A 1px dotted rect is period-correct and too faint
-  to be the only keyboard affordance here; the client's own ring stays.
-- **A Plugins-tab card.** The cube is the switch; a second one in Plugin
-  configuration would be a duplicate control with its own state.
+- **The win2k cursors.** The reference set is twelve SVG data-URL pointers (`%SystemRoot%\cursors`, hotspots included) — a screenful of string noise for a pointer most users never notice.
+- **Title bar, taskbar, Start menu, common dialogs.** This page has no such markup.
+- **Period metrics.** 16px touch targets and 23px push buttons would fight the client's own minimums and keyboard affordances.
+- **A focus-ring restyle.** A 1px dotted rect is period-correct and too faint to be the only keyboard affordance here; the client's own ring stays.
+- **A Plugins-tab card.** The cube is the switch; a second control in Plugin configuration would be a duplicate with its own state.
 
-## License
+## Development
+
+```sh
+npm run build      # tsc -p tsconfig.build.json → lib/index.js + lib/types/
+npm test           # node --test tests/*.test.ts — 7 behavioural tests
+npm run typecheck  # tsc -p tsconfig.json
+```
+
+`lib/client.js` is hand-authored and the build does not touch it. It is plain JavaScript on purpose: the client module system serves a package's `exports["./client"]` artifact as a lazy-CJS factory registered on `window.__ModuleLoader__`, so an out-of-tree plugin can author it directly instead of reproducing the repository's client preset.
+
+The tests evaluate the shipped bundle the way the client module system loads it, and cover the token layer, the sheet scope, flag-driven retraction on unload, row ordering, and the host settings namespace. None of them prove the *look* — that needs a browser.
+
+## Licence
 
 MIT.
