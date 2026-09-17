@@ -32,6 +32,10 @@ export declare const WIN2K_SETTINGS_NAMESPACE = "win2k";
  * Persisted configuration. `selected` is the plugin's own flag rather than the
  * theme service's preference: the `ui-theme` document holds built-in ids only,
  * and a third-party id cannot be written there.
+ *
+ * The field is spelled once: the settings namespace validates the stored value
+ * against this schema and `Config` below is the same object for a row patch, so
+ * the two can never drift. It defaults to `false` — the cube is the switch.
  */
 export declare const Win2kSettings: Schema<Schemastery.ObjectS<{
     selected: Schema<boolean, boolean>;
@@ -48,7 +52,7 @@ export interface Config {
     /** Start with the theme applied. Defaults to `false`: the cube is the switch. */
     readonly selected?: boolean;
 }
-/** Row schema: the default lives here, so a deployment only states what it changes. */
+/** Row schema: the settings namespace's own schema, so the default lives once. */
 export declare const Config: Schema<Config>;
 /** The slice of the settings service this plugin uses. */
 export interface SettingsServiceLike {

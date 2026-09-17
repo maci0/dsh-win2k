@@ -38,8 +38,6 @@ function createReactStub() {
   }
 }
 
-type ReactStub = ReturnType<typeof createReactStub>
-
 interface Snapshot {
   status: string
   value: unknown
@@ -54,7 +52,6 @@ interface Harness {
   writes: unknown[][]
   locales: string[]
   theme: { layers: Harness['layers']; get preference(): string }
-  react: ReactStub
   /** Drive one settings snapshot through the plugin's scope subscription. */
   publish: (next: Snapshot) => void
   /** Drive one theme preference change, the way a built-in cube click does. */
@@ -101,7 +98,6 @@ function mount(snapshot: Snapshot): Harness {
     },
     register: (): void => { throw new Error('win2k must not register a theme id') },
     setTheme: (): void => { throw new Error('win2k must not move the durable preference') },
-    getTheme: () => ({ preference: themeState.preference, active: { id: themeState.preference }, themes: [] }),
   }
 
   const ctx = {
@@ -121,7 +117,6 @@ function mount(snapshot: Snapshot): Harness {
       if (typeof disposer === 'function') disposers.push(disposer as () => void)
       return disposer
     },
-    on: (): (() => void) => () => {},
     slots: {
       inject: (_name: string, callback: () => unknown): void => { callback() },
       register: (entry: Record<string, unknown>, component: () => Element | null) => {
@@ -167,7 +162,6 @@ function mount(snapshot: Snapshot): Harness {
     attributes,
     writes,
     locales,
-    react,
     theme: {
       layers,
       /** Live read: the durable preference stays a built-in. */

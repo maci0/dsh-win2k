@@ -36,15 +36,14 @@ export const WIN2K_SETTINGS_NAMESPACE = 'win2k'
  * Persisted configuration. `selected` is the plugin's own flag rather than the
  * theme service's preference: the `ui-theme` document holds built-in ids only,
  * and a third-party id cannot be written there.
+ *
+ * The field is spelled once: the settings namespace validates the stored value
+ * against this schema and `Config` below is the same object for a row patch, so
+ * the two can never drift. It defaults to `false` — the cube is the switch.
  */
 export const Win2kSettings = Schema.object({
   selected: Schema.boolean().default(false),
 })
-
-/**
- * Row-config default for `selected`: off, because the cube is the switch.
- */
-const DEFAULT_SELECTED = false
 
 /**
  * Configuration accepted from this plugin's row in a profile patch.
@@ -57,10 +56,8 @@ export interface Config {
   readonly selected?: boolean
 }
 
-/** Row schema: the default lives here, so a deployment only states what it changes. */
-export const Config: Schema<Config> = Schema.object({
-  selected: Schema.boolean().default(DEFAULT_SELECTED),
-})
+/** Row schema: the settings namespace's own schema, so the default lives once. */
+export const Config: Schema<Config> = Win2kSettings
 
 /** The slice of the settings service this plugin uses. */
 export interface SettingsServiceLike {
@@ -98,7 +95,7 @@ export function apply(ctx: HostContext, config: Config = {}): void {
     throw new Error(`[win2k] selected must be a boolean; got ${JSON.stringify(config.selected)}`)
   }
 
-  const startup = config.selected ?? DEFAULT_SELECTED
+  const startup = config.selected ?? false
 
   ctx.inject(['settings'], (scope) => {
     scope.settings.installSection(
