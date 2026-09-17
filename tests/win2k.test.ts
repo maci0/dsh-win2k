@@ -25,12 +25,9 @@ interface Element {
   children: unknown[]
 }
 
-/** Minimal React stub with stateful hooks, so a click can be re-rendered. */
+/** Minimal React stub: the row reads its snapshot through useSyncExternalStore only. */
 function createReactStub() {
-  const hooks: unknown[] = []
-  let cursor = 0
   return {
-    reset: (): void => { cursor = 0 },
     createElement: (type: unknown, props: Record<string, unknown> | null, ...children: unknown[]): Element => ({
       type,
       props: props ?? {},
@@ -278,7 +275,6 @@ test('the row is ordered under the Appearance row and its cube drives the flag',
   assert.equal(row?.entry['id'], 'win2k-theme')
   assert.equal(row?.entry['order'], 12, 'ui-theme registers the Appearance row at order 10')
 
-  harness.react.reset()
   const tree = walk(row?.component())
   const cube = tree.filter((element) => element.type === 'button')[0]
   assert.ok(cube, 'the cube')
@@ -291,7 +287,6 @@ test('the row is ordered under the Appearance row and its cube drives the flag',
 
 test('a read-only deployment still applies the cube for the session', () => {
   const harness = mount({ status: 'ready', value: { selected: false }, writable: false })
-  harness.react.reset()
   const cube = walk(harness.rows[0]?.component()).filter((element) => element.type === 'button')[0]
   ;(cube?.props['onClick'] as () => void)()
 
