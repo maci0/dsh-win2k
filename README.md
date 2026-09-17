@@ -14,7 +14,7 @@ other projects carry (`clanker/themes/win2k.json`).
 | Cube | `settings.general.item` (order 12) | A **Theme** row with a **Windows 2000** cube directly under the built-in Appearance cubes, wearing their chrome. Clicking it applies the theme and persists the choice. |
 | Chrome | plugin-owned `<style>` tag | What a token cannot spell: square corners (`--dsw-corner-shape: square`), **MS Sans Serif** and Lucida Console, navy `::selection`, black-framed hard shadows on menus and dialogs, and the 16px beveled dithered scrollbar. Every rule is scoped under `body[data-dsw-win2k]`, so the sheet is inert under light/dark/system. |
 | Persistence | `ctx.settings.installSection()` | The `win2k` settings namespace holds `selected`, so the theme comes back after a reload and is switchable from the cube. |
-| Row config | `apply(ctx, config)` | `selected: true\|false` sets the composition-layer default; an invalid value fails while the plugin loads. |
+| Row config | `Config` schema + `apply(ctx, config)` | `selected: true\|false` sets the composition-layer default; the exported Schemastery schema validates the row and fills the default, and `apply` re-checks the value so a direct caller fails too. |
 
 ## Why its own cube, not the Appearance row
 
@@ -37,6 +37,11 @@ the next reload anyway, just without telling anyone.
 dsh plugin --profile web add https://github.com/maci0/dsh-win2k
 ```
 
+The package declares `dsh.bundle`, so `dsh plugin add` appends it to
+`dsh.profile.bundles` and applies its own `cordis.patch.yml` as a layer — no
+manual step. Refresh the page once: the client module graph is composed per
+index render.
+
 Or by hand in `~/.dsh/profiles/web`:
 
 ```sh
@@ -54,9 +59,9 @@ That file is live-watched, so saving it remounts the plugin:
         selected: true
 ```
 
-`insert` does not dedupe ids: never also list this package in
-`dsh.profile.bundles`. Refresh the page once — the client module graph is
-composed per index render.
+Pick one path, not both: `insert` does not dedupe ids, so merging that row by
+hand while the package is also in `dsh.profile.bundles` registers the plugin
+twice.
 
 ## Verify
 
@@ -73,11 +78,15 @@ composed per index render.
 ## Layout
 
 ```
-src/index.ts   host plugin: the win2k settings namespace (what persists the choice)
-lib/client.js  browser half: theme registration, chrome sheet, applier, cube row
+src/index.ts        host plugin source: the win2k settings namespace (what persists the choice)
+lib/index.js        built host half — what `main` / `exports["."]` load; `lib/types/index.d.ts` carries its declarations
+lib/client.js       browser half: theme registration, chrome sheet, applier, cube row
 cordis.patch.yml
 tests/win2k.test.ts
 ```
+
+`npm run build` regenerates `lib/index.js` and `lib/types/` from `src/`;
+`lib/client.js` is hand-authored and is not built.
 
 ## Deliberately not included
 

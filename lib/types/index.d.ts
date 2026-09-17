@@ -20,32 +20,24 @@
  *
  * @module dsh-win2k
  */
-
-import Schema from '@deepseek-ai/schemastery'
-
+import Schema from '@deepseek-ai/schemastery';
 /** Plugin name as it appears in the loader. */
-export const name = 'win2k'
-
+export declare const name = "win2k";
 /**
  * Settings namespace the browser cube edits — the join key between this host
  * half and `lib/client.js`.
  */
-export const WIN2K_SETTINGS_NAMESPACE = 'win2k'
-
+export declare const WIN2K_SETTINGS_NAMESPACE = "win2k";
 /**
  * Persisted configuration. `selected` is the plugin's own flag rather than the
  * theme service's preference: the `ui-theme` document holds built-in ids only,
  * and a third-party id cannot be written there.
  */
-export const Win2kSettings = Schema.object({
-  selected: Schema.boolean().default(false),
-})
-
-/**
- * Row-config default for `selected`: off, because the cube is the switch.
- */
-const DEFAULT_SELECTED = false
-
+export declare const Win2kSettings: Schema<Schemastery.ObjectS<{
+    selected: Schema<boolean, boolean>;
+}>, Schemastery.ObjectT<{
+    selected: Schema<boolean, boolean>;
+}>>;
 /**
  * Configuration accepted from this plugin's row in a profile patch.
  *
@@ -53,62 +45,31 @@ const DEFAULT_SELECTED = false
  * defaults from; `apply` keeps its own check as a backstop for direct callers.
  */
 export interface Config {
-  /** Start with the theme applied. Defaults to `false`: the cube is the switch. */
-  readonly selected?: boolean
+    /** Start with the theme applied. Defaults to `false`: the cube is the switch. */
+    readonly selected?: boolean;
 }
-
 /** Row schema: the default lives here, so a deployment only states what it changes. */
-export const Config: Schema<Config> = Schema.object({
-  selected: Schema.boolean().default(DEFAULT_SELECTED),
-})
-
+export declare const Config: Schema<Config>;
 /** The slice of the settings service this plugin uses. */
 export interface SettingsServiceLike {
-  /**
-   * Register a namespace with the plugin's composition entry as the `base`
-   * layer, falling back to that entry when no provider is mounted.
-   */
-  installSection(
-    owner: unknown,
-    namespace: string,
-    schema: unknown,
-    entry: unknown,
-    hooks: {
-      setSource(current: () => unknown): void
-      onChange(): void
-    },
-  ): void
+    /**
+     * Register a namespace with the plugin's composition entry as the `base`
+     * layer, falling back to that entry when no provider is mounted.
+     */
+    installSection(owner: unknown, namespace: string, schema: unknown, entry: unknown, hooks: {
+        setSource(current: () => unknown): void;
+        onChange(): void;
+    }): void;
 }
-
 /** Hooks the host context exposes to this plugin. */
 export interface HostContext {
-  /** Run `callback` once the named services are available. */
-  inject(dependencies: readonly string[], callback: (scope: HostContext) => void): unknown
-  readonly settings: SettingsServiceLike
+    /** Run `callback` once the named services are available. */
+    inject(dependencies: readonly string[], callback: (scope: HostContext) => void): unknown;
+    readonly settings: SettingsServiceLike;
 }
-
 /**
  * Mount the plugin.
  * @param ctx - the host context.
  * @param config - optional row configuration.
  */
-export function apply(ctx: HostContext, config: Config = {}): void {
-  // Reject configuration that would silently do the wrong thing.
-  if (config.selected !== undefined && typeof config.selected !== 'boolean') {
-    throw new Error(`[win2k] selected must be a boolean; got ${JSON.stringify(config.selected)}`)
-  }
-
-  const startup = config.selected ?? DEFAULT_SELECTED
-
-  ctx.inject(['settings'], (scope) => {
-    scope.settings.installSection(
-      ctx,
-      WIN2K_SETTINGS_NAMESPACE,
-      Win2kSettings,
-      { selected: startup },
-      // The browser half owns every consequence of this value; the node half
-      // only stores it, so both hooks stay empty on purpose.
-      { setSource: () => {}, onChange: () => {} },
-    )
-  })
-}
+export declare function apply(ctx: HostContext, config?: Config): void;
