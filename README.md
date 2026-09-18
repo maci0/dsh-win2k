@@ -140,6 +140,25 @@ Management, Add/Remove Programs, and a full Explorer window. They settled severa
 negative result: Explorer's dotted tree connector lines are **not** applied here, because this app's tree
 is a flat list of one-row sections with every row at the same padding — there is no nesting to connect.
 
+## Audits
+
+Every claim in this sheet is measured against the running client rather than eyeballed, and the checks are
+cheap enough to re-run after any change — several of the fixes above came from re-running one:
+
+| check | how | last result |
+|---|---|---|
+| palette | every element's background, text, border and gradient stop, classified by hue and lightness against the 16-colour set | 0 offenders in session, trajectory, settings, plugins |
+| contrast | every text node's colour against its nearest opaque ancestor, flagging anything under 3:1 | 0 in hero, session, settings, plugins |
+| fonts | every leaf text node's computed family | 0 outside Win2k UI / Tahoma / Mono |
+| dark tokens | every `--dsw-*` the client's dark appearance overrides, diffed against the ones this sheet owns | 167/167 |
+| icon sizes | every svg host with a bitmap background, against the size its rule asks for | only contain-fit rows remain |
+| hover | each control class hovered with the mouse, diffing background and shadow at rest | all controls respond; status readouts and the selected tab correctly do not |
+| geometry | control heights against the 22/23px grid, and row, icon, label and control columns against each other | one column per surface |
+
+The dark-token and coverage checks are text-level and can be wrong about coverage when a rule is written in
+CSS syntax inside the sheet rather than in the token map; the computed-style checks are the ones that settle
+a question.
+
 ## Assets and licensing
 
 The icon bitmaps and the font faces embedded in `lib/client.js` are Microsoft's, extracted from a
