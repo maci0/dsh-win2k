@@ -17,6 +17,8 @@ Grey face panels, a white document well, navy selection, hard-square corners, MS
 - **The win2k pointer.** The default arrow, the I-beam text caret, the hourglass, the four-way move and the column-resize arrow are the CD's own `.CUR` files, embedded as PNG data URIs with their recorded hotspots. Windows 2000's link hand shipped with IE rather than the shell cursor set, so links keep the platform pointer.
 - **Text that is not a form.** Inline code is a shaded patch and file references are navy links, both without frames. The client draws inline code as an outlined field and file references as buttons, which turned dense answers into rows of little grey 3D boxes.
 - **A visible pane splitter.** Windows 2000 drew a four-pixel face bar with a groove; the client's handle is an eight-pixel invisible hit strip.
+- **No easing.** Windows 2000 changed state on the next frame: hover, selection and opening a control were instant. The client eases all of it.
+- **75px dialog buttons.** Push buttons were that width whatever their label — visible in the System Properties screenshot on the CD, where OK, Cancel and Apply are identical.
 - **No font smoothing.** Windows 2000 shipped aliased text: ClearType existed but was off, so glyphs landed on whole pixels. The client asks for antialiased text; the sheet turns it off, which is the single change that moves the most pixels on screen.
 - **Combo boxes, not menu buttons.** Every dropdown the client draws is a grey face control; Windows 2000's combo is a white sunken field with a raised 16px arrow button at its end. The sheet re-cuts them: field white, leading icon sitting in the field, caret plated — in the composer, the hero pickers and the Settings rows.
 - **Defragmenter flourishes.** The shell's disk map and legend were flat 2px clusters, so the tool-row state marks are cluster blocks instead of soft haloes, progress bars are segmented strips, and the empty-state hero sits on the shell's two-grey 8px map texture.
@@ -127,6 +129,14 @@ the DeepSeek mark in the sidebar and hero, the live status dot on a running Sess
 ellipsis buttons. Everything else is a resource ripped from the media, or a system-drawn control emulated on
 purpose: the + / − tree boxes, the dropdown triangles, the checkbox tick and the switch were drawn by USER32 and
 COMCTL32 in Windows 2000, not loaded from an icon, so a bitmap would be a copy of a copy.
+
+## Reference
+
+The CD also carries Windows 2000 screenshots in `DISCOVER/` — System Properties, the Start menu, Disk
+Management, Add/Remove Programs. They settled two questions: the caption really is a navy-to-light-blue
+gradient with grey 16x14 plates at the right and 23px buttons at 75px, and disabled button labels really
+are etched. They also show the one place this plugin stops short: the Start menu's speckled panel face.
+That speckle is not applied here, and the plugin has no Start menu to apply it to.
 
 ## Assets and licensing
 
