@@ -133,10 +133,9 @@ COMCTL32 in Windows 2000, not loaded from an icon, so a bitmap would be a copy o
 ## Reference
 
 The CD also carries Windows 2000 screenshots in `DISCOVER/` — System Properties, the Start menu, Disk
-Management, Add/Remove Programs. They settled two questions: the caption really is a navy-to-light-blue
-gradient with grey 16x14 plates at the right and 23px buttons at 75px, and disabled button labels really
-are etched. They also show the one place this plugin stops short: the Start menu's speckled panel face.
-That speckle is not applied here, and the plugin has no Start menu to apply it to.
+Management, Add/Remove Programs, and a full Explorer window. They settled several questions and one
+negative result: Explorer's dotted tree connector lines are **not** applied here, because this app's tree
+is a flat list of one-row sections with every row at the same padding — there is no nesting to connect.
 
 ## Assets and licensing
 
