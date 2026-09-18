@@ -103,6 +103,7 @@ Every `--dsw-alias-*`, `--dsw-static-*` and `--dsw-specific-*` name the sheet se
 
 ## Deliberately not included
 
+- **The product mark.** The sidebar and hero logos are the DeepSeek fish, and they stay: a theme that redraws a vendor's identity as a period bitmap is not a theme any more. They are already a flat monochrome glyph, which is what a win2k title-bar mark would have been.
 - **The win2k cursors.** The reference set is twelve SVG data-URL pointers (`%SystemRoot%\cursors`, hotspots included) — a screenful of string noise for a pointer most users never notice.
 - **The taskbar, Start menu and common dialogs.** This page has no such markup. The title bar does: the Session header is one.
 - **A bitmap `MS Sans Serif`.** The font is a per-machine 1990s bitmap face; the stack names it, then `Microsoft Sans Serif`, Tahoma and `DejaVu Sans` (spelled out so a Linux client lands on a deterministic face rather than whatever `sans-serif` resolves to). A client without any of them gets its own body font and keeps the rest of the skin.
