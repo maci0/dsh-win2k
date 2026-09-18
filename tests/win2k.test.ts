@@ -277,7 +277,7 @@ test('the row is ordered under the Appearance row and its cube drives the flag',
   assert.ok(row, 'a component registered into settings.general.item')
   assert.equal(row?.entry['name'], 'settings.general.item')
   assert.equal(row?.entry['id'], 'win2k-theme')
-  assert.equal(row?.entry['order'], 12, 'ui-theme registers the Appearance row at order 10')
+  assert.equal(row?.entry['order'], 11.5, 'between ui-theme Appearance 10 / Font size 11 and ui-chat Conversation display 12')
 
   const tree = walk(row?.component())
   const cube = tree.filter((element) => element.type === 'button')[0]
