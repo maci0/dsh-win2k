@@ -192,7 +192,7 @@ Deliberate, and each one a judgement rather than an oversight:
 
 ## 9. Audit suite
 
-Ten checks, re-runnable after any change, all measured against the running client:
+Eleven checks, re-runnable after any change, all measured against the running client:
 
 | check | method | last result |
 |---|---|---|
@@ -204,6 +204,7 @@ Ten checks, re-runnable after any change, all measured against the running clien
 | geometry | control heights against §3, and row, icon, label and control columns against each other | one column per surface |
 | spacing | every computed padding, margin and gap against §3's set | five deliberate 3px insets |
 | overflow | text a box cannot show without an ellipsis, and children escaping their parent's box | 0 clipped, 0 escaping across chat, settings and plugins |
+| disabled | every disabled control's ink against the etched grey, since opacity 1 makes the etch the only signal | 0 unetched (caption title excepted by design) |
 | edges | every control with both a border and an inset bevel — two edges — and any element still carrying a radius | 0 double-edged, 0 rounded across chat, settings and plugins |
 | overlap | two siblings' text boxes intersecting — the toolbar-label defect. Carries `--self-test`, which reinjects that defect and asserts the check still catches it | 0 pairs across chat, settings and plugins; self-test passes |
 
