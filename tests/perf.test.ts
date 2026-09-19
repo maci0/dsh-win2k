@@ -19,6 +19,14 @@ import { mount, readBundle, type Harness, type Snapshot } from '../bench/harness
 const BUNDLE = readBundle()
 const OFF: Snapshot = { status: 'ready', value: { selected: false }, writable: true }
 
+/**
+ * Bytes of chrome sheet the module hands the engine, recorded on the baseline
+ * above. The sheet is stored pre-normalized, so this is an equality: a runtime
+ * normalizer would re-emit the same bytes but pay a second 167KB copy, and
+ * newlines left in the literal would move the number.
+ */
+const SHEET_BYTES = 167_227
+
 /** Median CPU microseconds of `runs` evaluations of a fresh (uncompiled) source. */
 function coldInitUs(runs = 15): number {
   const samples: number[] = []
@@ -46,10 +54,16 @@ test('module init hands the CSS engine one sheet and stays off the event path', 
   // whole input: a ceiling, so a runaway sheet fails here instead of at paint.
   assert.equal(harness.counters.headAppend, 1, 'one plugin-owned <style> tag')
   assert.equal(harness.counters.createElement, 1, 'no element churn at init')
-  assert.ok(
-    harness.counters.cssBytes <= 200_000,
-    `CSS handed to the parser must stay bounded, got ${harness.counters.cssBytes} bytes`,
+  assert.equal(
+    harness.counters.cssBytes,
+    SHEET_BYTES,
+    `init must hand the parser the recorded sheet, got ${harness.counters.cssBytes} bytes`,
   )
+  // Normalizing the sheet at runtime was 1.57M instructions, 3.8k cache misses
+  // and ~70us of CPU per evaluation (`perf stat -e instructions,cache-misses`,
+  // `--variant=plain` vs the shipped sheet). Storing it pre-normalized in the
+  // source deleted that pass, so init must rewrite nothing sheet-sized.
+  assert.equal(harness.counters.sheetRewrites, 0, 'init rewrites no sheet-sized string')
 
   // Cold evaluation is the page-load cost. Baseline 2.4ms; the ceiling only
   // catches a catastrophic regression, which is what a stable CI gate can do.

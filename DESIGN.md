@@ -198,7 +198,7 @@ Deliberate, and each one a judgement rather than an oversight:
 
 ## 9. Audit suite
 
-Thirteen checks, re-runnable after any change, all measured against the running client:
+Fourteen checks, re-runnable after any change, all measured against the running client:
 
 | check | method | last result |
 |---|---|---|
@@ -210,6 +210,7 @@ Thirteen checks, re-runnable after any change, all measured against the running 
 | geometry | **every row of §3's metric table** — heights and type sizes per control class, plus the scrollbar's width | 15/15 |
 | spacing | every computed padding, margin and gap against §3's set | five deliberate 3px insets |
 | overflow | text a box cannot show without an ellipsis, and children escaping their parent's box | 0 clipped, 0 escaping across chat, settings and plugins |
+| type scale | type off the scale and fractional border widths, in the trajectory and every settings subpage | 0 off-scale, 0 fractional |
 | motion | every element's transition durations and running animations | 0 transitions, 0 animations across chat, settings and plugins |
 | orphans | glyphs whose children the sheet hides with nothing painted in their place — a check with `--self-test`, which strips a control's paint and asserts it notices | 0 across chat, settings and plugins; self-test passes |
 | disabled | every disabled control's ink against the etched grey, since opacity 1 makes the etch the only signal | 0 unetched (caption title excepted by design) |

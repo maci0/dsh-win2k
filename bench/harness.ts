@@ -18,6 +18,13 @@ export interface Counters {
   headAppend: number
   /** Bytes of CSS text assigned to that element's `textContent`. */
   cssBytes: number
+  /**
+   * Whole-sheet string rewrites performed while the module materializes. The
+   * sheet ships pre-normalized, so this stays `0`; a re-introduced runtime
+   * normalizer is a sheet-sized copy per page load, and the count catches it on
+   * any machine, loaded or not.
+   */
+  sheetRewrites: number
   /** Elements the shipped code asked the document to create. */
   createElement: number
   /** `body.toggleAttribute` calls — one per settings snapshot. */
@@ -80,6 +87,7 @@ export function mount(source: string, initial: Snapshot): Harness {
   const counters: Counters = {
     headAppend: 0,
     cssBytes: 0,
+    sheetRewrites: 0,
     createElement: 0,
     toggleAttribute: 0,
     removeAttribute: 0,
@@ -146,9 +154,24 @@ export function mount(source: string, initial: Snapshot): Harness {
   windowStub.__ModuleLoader__.load = (registration: unknown): void => {
     loaded = registration as typeof loaded
   }
-  new Function('window', 'require', 'document', source)(windowStub, requireFn, documentStub)
-  if (!loaded) throw new Error('the bundle did not register itself')
-  loaded.factory(requireFn).apply(ctx)
+  // Watch the one string-sized operation the sheet could reappear in. Sheets
+  // below the floor are ordinary work and are not counted.
+  const SHEET_FLOOR = 100_000
+  const nativeReplace = String.prototype.replace
+  String.prototype.replace = function counted(
+    this: string,
+    ...rest: unknown[]
+  ): string {
+    if (typeof this === 'string' && this.length >= SHEET_FLOOR) counters.sheetRewrites += 1
+    return (nativeReplace as unknown as (...args: unknown[]) => string).apply(this, rest)
+  } as typeof String.prototype.replace
+  try {
+    new Function('window', 'require', 'document', source)(windowStub, requireFn, documentStub)
+    if (!loaded) throw new Error('the bundle did not register itself')
+    loaded.factory(requireFn).apply(ctx)
+  } finally {
+    String.prototype.replace = nativeReplace
+  }
 
   return {
     counters,

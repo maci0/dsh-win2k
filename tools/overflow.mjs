@@ -66,8 +66,10 @@ const scan = async (label) => {
       if (parseFloat(cs.marginLeft) < 0 || parseFloat(cs.marginRight) < 0) continue
       if (cs.pointerEvents === 'none') continue
       // known decorations: the lightbox's frame and mark are drawn to sit outside
-      // their slot on purpose. Add here only with a reason.
-      if (/-ycU0W_(frame|mark)\b/.test(String(el.className))) continue
+      // their slot on purpose. Add here only with a reason. The CSS-module hash
+      // in front of the local name changes on every client build, so only the
+      // local name is matched.
+      if (/(?:^|\s)[^\s]*_(?:frame|mark)\b/.test(String(el.className))) continue
       const overRight = r.right - pr.right
       const overBottom = r.bottom - pr.bottom
       if (overRight > 2 || overBottom > 2) {

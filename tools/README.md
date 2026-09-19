@@ -1,6 +1,6 @@
 # Audit suite
 
-Thirteen checks that measure this theme against the running client. They are how every
+Fourteen checks that measure this theme against the running client. They are how every
 rule in this plugin was verified, and how the figures in [DESIGN.md](../DESIGN.md)
 were taken. Run them after any change to `lib/client.js`.
 
@@ -37,6 +37,7 @@ export DSH_PLAYWRIGHT=/home/you/node_modules/playwright/index.mjs
 | `spacing.mjs` | histograms of padding, margin and gap per property, for reading the distribution rather than exceptions |
 | `iconsize.mjs` | every bitmap host against the size its rule asks for, to catch crops |
 | `motion.mjs` | every element's transition durations and running animations, with their durations and iteration counts |
+| `typescale.mjs` | type off the sheet's scale and fractional border widths, in the trajectory and every settings subpage — the views the shell-wide sweeps skip. It found 10px kind tags, an 8px turn label and 18px page headings |
 | `orphans.mjs` | glyphs whose children this sheet hides with no bitmap to replace them — the state the blank copy plate was in. `--self-test` strips a control's paint and asserts the check notices |
 | `disabled.mjs` | every disabled control's ink, against the etched grey. This sheet forces opacity 1 on disabled elements so the etch is the only signal — this checks the etch is actually there |
 | `edges.mjs` | every control with both a border and an inset bevel (two edges), and any element still carrying a border radius. Fields are exempt from the border half — a win2k field's 1px sunken border *is* its edge |
