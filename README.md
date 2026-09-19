@@ -151,6 +151,7 @@ cheap enough to re-run after any change — several of the fixes above came from
 | check | how | last result |
 |---|---|---|
 | palette | every element's background, text, border and gradient stop, classified by hue and lightness against the 16-colour set | 0 offenders in session, trajectory, settings, plugins |
+| translucency | any surface or ink with an alpha between 0 and 1, since it composites to a colour no palette entry names | 0 across the same four views |
 | contrast | every text node's colour against its nearest opaque ancestor, flagging anything under 3:1 | 0 in hero, session, settings, plugins |
 | fonts | every leaf text node's computed family | 0 outside Win2k UI / Tahoma / Mono |
 | dark tokens | every `--dsw-*` the client's dark appearance overrides, diffed against the ones this sheet owns | 167/167 |
