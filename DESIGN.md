@@ -201,7 +201,7 @@ Twelve checks, re-runnable after any change, all measured against the running cl
 | contrast | every text node against its nearest opaque ancestor, under 3:1 flagged | 0 in hero, session, settings, plugins |
 | fonts | every leaf text node's family | 0 outside Win2k UI / Tahoma / Mono |
 | dark tokens | every `--dsw-*` the client's dark appearance overrides | 167/167 owned |
-| geometry | control heights against §3, and row, icon, label and control columns against each other | one column per surface |
+| geometry | **every row of §3's metric table** — heights and type sizes per control class, plus the scrollbar's width | 15/15 |
 | spacing | every computed padding, margin and gap against §3's set | five deliberate 3px insets |
 | overflow | text a box cannot show without an ellipsis, and children escaping their parent's box | 0 clipped, 0 escaping across chat, settings and plugins |
 | orphans | glyphs whose children the sheet hides with nothing painted in their place — a check with `--self-test`, which strips a control's paint and asserts it notices | 0 across chat, settings and plugins; self-test passes |

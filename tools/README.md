@@ -41,7 +41,7 @@ export DSH_PLAYWRIGHT=/home/you/node_modules/playwright/index.mjs
 | `edges.mjs` | every control with both a border and an inset bevel (two edges), and any element still carrying a border radius. Fields are exempt from the border half — a win2k field's 1px sunken border *is* its edge |
 | `overlap.mjs` | two siblings' text drawn over each other. `--self-test` reinjects the toolbar-label defect it was written for and asserts the check still catches it |
 | `overflow.mjs` | text a box cannot show without an ellipsis, and children escaping their parent's box — excluding deliberate bleeds (a negative margin), clamps and decorative absolutes |
-| `conformance.mjs` | the app against DESIGN.md's metric table — heights and type sizes per control class |
+| `conformance.mjs` | the app against DESIGN.md's metric table — every row of it: push button, tool row, tree row, both tab states, caption band and control, status bar, toolbar chip, dialog combo and close, rail cell, stepper, checkbox/switch and the scrollbar's width |
 
 ## Checking a check
 
