@@ -182,7 +182,7 @@ Eight checks, re-runnable after any change, all measured against the running cli
 | dark tokens | every `--dsw-*` the client's dark appearance overrides | 167/167 owned |
 | geometry | control heights against §3, and row, icon, label and control columns against each other | one column per surface |
 | spacing | every computed padding, margin and gap against §3's set | five deliberate 3px insets |
-| overflow | text a box cannot show without an ellipsis, and children escaping their parent's box | 0 real; decorative bleeds and clamps excluded |
+| overflow | text a box cannot show without an ellipsis, and children escaping their parent's box | 0 clipped, 0 escaping across chat, settings and plugins |
 
 Two operational notes learned the hard way: the dev-server auth cookie **expires
 mid-session** (the audits fail with a 401 page rather than a theme error), and a cached

@@ -41,7 +41,7 @@ const scan = async (label) => {
       }
       if (ownText && !covered) {
         if (el.scrollWidth > el.clientWidth + 1) {
-          const key = `CLIPPED w=${el.clientWidth} need=${el.scrollWidth} .${local(el).slice(0, 22) || el.tagName.toLowerCase()} "${(el.textContent || '').trim().slice(0, 18)}"`
+          const key = `CLIPPED tf=${cs.textOverflow} ov=${cs.overflow} w=${el.clientWidth} need=${el.scrollWidth} .${String(el.className).slice(0, 30) || el.tagName.toLowerCase()} \"${(el.textContent || '').trim().slice(0, 18)}\"`
           clipped.set(key, (clipped.get(key) ?? 0) + 1)
         }
         if (el.scrollHeight > el.clientHeight + 1 && cs.overflowY !== 'auto' && cs.overflowY !== 'scroll'
@@ -53,10 +53,21 @@ const scan = async (label) => {
       // a child escaping its parent's box
       const p = el.parentElement
       if (!p) continue
-      const pcs = getComputedStyle(p)
-      if (pcs.overflow !== 'visible' || pcs.position === 'static' && pcs.display === 'contents') continue
+      // an ancestor that clips means it does not visibly escape
+      let clippedByAncestor = false
+      for (let n = p, i = 0; n && i < 3; n = n.parentElement, i++) {
+        const ncs = getComputedStyle(n)
+        if (ncs.overflow !== 'visible' || ncs.overflowX !== 'visible' || ncs.overflowY !== 'visible') { clippedByAncestor = true; break }
+      }
+      if (clippedByAncestor) continue
       const pr = p.getBoundingClientRect()
       if (pr.width < 8) continue
+      // deliberate bleed: a negative margin, or a decoration that takes no pointer
+      if (parseFloat(cs.marginLeft) < 0 || parseFloat(cs.marginRight) < 0) continue
+      if (cs.pointerEvents === 'none') continue
+      // known decorations: the lightbox's frame and mark are drawn to sit outside
+      // their slot on purpose. Add here only with a reason.
+      if (/-ycU0W_(frame|mark)\b/.test(String(el.className))) continue
       const overRight = r.right - pr.right
       const overBottom = r.bottom - pr.bottom
       if (overRight > 2 || overBottom > 2) {
