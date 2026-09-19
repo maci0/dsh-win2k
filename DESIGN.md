@@ -79,8 +79,8 @@ that class was.
 
 **Type scale.** Chrome is 12px; status readouts 11px; the caption title 12px bold;
 transcript content keeps its own sizes for reading. Nothing fractional: the client's
-13.3333px default and its `0.875em` inline code were both on the wrong side of this
-line and were snapped.
+13.3333px browser default, the Settings rail's 14px, and the `0.875em` inline code
+(12.25px against a 14px paragraph) have all been snapped onto the scale.
 
 **Spacing set.** Windows 2000 built its chrome from **1, 2, 3, 4, 6, 7, 8, 10, 11, 12,
 16, 20, 24**. Nothing in a dialog lands on 5, 9, 14, 18 or 22. Four values of 3px
@@ -203,5 +203,9 @@ first:
 4. **Invalid declarations.** A stray token in a shorthand (`center/contain 16px`) makes
    the browser drop the declaration silently — the symptom is an empty plate among
    painted ones.
-5. **Verifying the asset instead of the browser.** Rendering an extracted PNG proves the
+5. **A client declaration with `!important`.** Its markdown inline code is
+   `font-size: 0.875em !important`, which computes to a fractional 12.25px. A plain
+   declaration loses to it however specific the selector is, and an injected later
+   stylesheet loses too — only `!important` on this side settles it.
+6. **Verifying the asset instead of the browser.** Rendering an extracted PNG proves the
    asset, not the rule. Read the computed style off the live element.
