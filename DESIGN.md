@@ -218,22 +218,22 @@ first:
    trajectory toolbar's labelled toggles; `[class*="_dock"]` collapsed the goal bar;
    `[class*="iconButton"]` cropped a tab-strip mark; a generic button plate dressed a
    plugin's status readout. When a fix is written, ask what *else* matches.
-2. **The caption's white ink.** `header … > div:first-child *` paints the caption band's
+3. **The caption's white ink.** `header … > div:first-child *` paints the caption band's
    text white, and anything that mounts under that row inherits it. Three white-on-grey
    bugs came from it. It is the first rule to check when text turns up invisible near the
    top of the window.
-3. **Translucency.** A tint is not a palette colour. It composites to something the audit
+4. **Translucency.** A tint is not a palette colour. It composites to something the audit
    cannot name and the design does not contain.
-4. **Invalid declarations.** A stray token in a shorthand (`center/contain 16px`) makes
+5. **Invalid declarations.** A stray token in a shorthand (`center/contain 16px`) makes
    the browser drop the declaration silently — the symptom is an empty plate among
    painted ones.
-5. **A client declaration with `!important`.** Its markdown inline code is
+6. **A client declaration with `!important`.** Its markdown inline code is
    `font-size: 0.875em !important`, which computes to a fractional 12.25px. A plain
    declaration loses to it however specific the selector is, and an injected later
    stylesheet loses too — only `!important` on this side settles it.
-6. **A backtick inside a CSS comment.** The whole sheet is one JavaScript template
+7. **A backtick inside a CSS comment.** The whole sheet is one JavaScript template
    literal, so a stray backtick in a comment ends the string and the file stops
    parsing. Cost one failed build this session; the comment quoting a client
    selector is what did it.
-7. **Verifying the asset instead of the browser.** Rendering an extracted PNG proves the
+8. **Verifying the asset instead of the browser.** Rendering an extracted PNG proves the
    asset, not the rule. Read the computed style off the live element.
