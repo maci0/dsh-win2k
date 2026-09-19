@@ -49,10 +49,13 @@ sheet.
 
 Two rules follow from it:
 
-- **No translucency.** A win2k surface is an opaque palette colour. A 10% tint
-  composites to something the palette cannot name, so every `--dsw-*` surface and ink
-  token here is opaque. The only exceptions are the modal masks (`--dsw-alias-bg-mask-*`),
-  which are a deliberate modern concession — see §8.
+- **No translucency, in any of its three forms.** A win2k surface is an opaque palette
+  colour. A 10% tint composites to something the palette cannot name, so every
+  `--dsw-*` surface and ink token here is opaque. A *colour* alpha is not the only way
+  to be see-through: the client also paints element opacity, and the sheet now forces
+  1 on the marks it draws (the timeline spans were 78%, the caption carets 70%) and on
+  disabled controls, whose state is carried by the etched label instead. The only
+  exceptions are the modal masks (`--dsw-alias-bg-mask-*`) — see §8.
 - **No gradients except the caption's**, whose two stops are ActiveTitle and
   GradientActiveTitle.
 
@@ -181,7 +184,7 @@ Ten checks, re-runnable after any change, all measured against the running clien
 | check | method | last result |
 |---|---|---|
 | palette | every element's background, text, border and gradient stop, classified by hue and lightness against §2 | 0 offenders in session, trajectory, settings, plugins |
-| translucency | any surface or ink with alpha between 0 and 1, at element level **and** token level | 0 (masks excepted) |
+| translucency | any surface or ink with alpha between 0 and 1 at element or token level, **and** any element with opacity below 1 | 0 (masks excepted) |
 | contrast | every text node against its nearest opaque ancestor, under 3:1 flagged | 0 in hero, session, settings, plugins |
 | fonts | every leaf text node's family | 0 outside Win2k UI / Tahoma / Mono |
 | dark tokens | every `--dsw-*` the client's dark appearance overrides | 167/167 owned |
