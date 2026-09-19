@@ -83,9 +83,10 @@ transcript content keeps its own sizes for reading. Nothing fractional: the clie
 (12.25px against a 14px paragraph) have all been snapped onto the scale.
 
 **Spacing set.** Windows 2000 built its chrome from **1, 2, 3, 4, 6, 7, 8, 10, 11, 12,
-16, 20, 24**. Nothing in a dialog lands on 5, 9, 14, 18 or 22. Four values of 3px
+16, 20, 24**. Nothing in a dialog lands on 5, 9, 14, 18 or 22. Five values of 3px
 remain on purpose: the caption's text inset, the tab strip's inset that has to match
-it, and the sidebar's logo row — 3px is the shell's own caption and toolbar measure.
+it, the sidebar's logo row, and the inline code chip's horizontal padding — 3px is
+the shell's own caption and toolbar measure.
 
 ## 4. Bevels and surfaces
 
