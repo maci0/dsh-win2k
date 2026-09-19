@@ -102,7 +102,9 @@ Two bevels do all the work, both 2px, both from the shell's light/shadow pairs:
 
 Consequences enforced across the sheet:
 
-- **`border-radius: 0` everywhere.** One global rule; a win2k control has no radius.
+- **`border-radius: 0` everywhere.** One global rule, `!important`, because the client
+  sets radii from selectors more specific than a universal one (its inline code is a
+  6px chip). A win2k control has no radius at all.
 - **One edge per control.** A control with the raised bevel must not also carry a 1px
   border — that is two edges, which is what the Models page's buttons and the add tiles
   had.
@@ -171,7 +173,7 @@ Deliberate, and each one a judgement rather than an oversight:
 
 ## 9. Audit suite
 
-Nine checks, re-runnable after any change, all measured against the running client:
+Ten checks, re-runnable after any change, all measured against the running client:
 
 | check | method | last result |
 |---|---|---|
@@ -183,6 +185,7 @@ Nine checks, re-runnable after any change, all measured against the running clie
 | geometry | control heights against §3, and row, icon, label and control columns against each other | one column per surface |
 | spacing | every computed padding, margin and gap against §3's set | five deliberate 3px insets |
 | overflow | text a box cannot show without an ellipsis, and children escaping their parent's box | 0 clipped, 0 escaping across chat, settings and plugins |
+| edges | every control with both a border and an inset bevel — two edges — and any element still carrying a radius | 0 double-edged, 0 rounded across chat, settings and plugins |
 | overlap | two siblings' text boxes intersecting — the toolbar-label defect. Carries `--self-test`, which reinjects that defect and asserts the check still catches it | 0 pairs across chat, settings and plugins; self-test passes |
 
 Two operational notes learned the hard way: the dev-server auth cookie **expires
@@ -211,5 +214,9 @@ first:
    `font-size: 0.875em !important`, which computes to a fractional 12.25px. A plain
    declaration loses to it however specific the selector is, and an injected later
    stylesheet loses too — only `!important` on this side settles it.
-6. **Verifying the asset instead of the browser.** Rendering an extracted PNG proves the
+6. **A backtick inside a CSS comment.** The whole sheet is one JavaScript template
+   literal, so a stray backtick in a comment ends the string and the file stops
+   parsing. Cost one failed build this session; the comment quoting a client
+   selector is what did it.
+7. **Verifying the asset instead of the browser.** Rendering an extracted PNG proves the
    asset, not the rule. Read the computed style off the live element.
