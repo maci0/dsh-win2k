@@ -1,6 +1,6 @@
 # Audit suite
 
-Eleven checks that measure this theme against the running client. They are how every
+Twelve checks that measure this theme against the running client. They are how every
 rule in this plugin was verified, and how the figures in [DESIGN.md](../DESIGN.md)
 were taken. Run them after any change to `lib/client.js`.
 
@@ -36,6 +36,7 @@ export DSH_PLAYWRIGHT=/home/you/node_modules/playwright/index.mjs
 | `offgrid.mjs` | every computed padding, margin and gap against the shell's spacing set |
 | `spacing.mjs` | histograms of padding, margin and gap per property, for reading the distribution rather than exceptions |
 | `iconsize.mjs` | every bitmap host against the size its rule asks for, to catch crops |
+| `orphans.mjs` | glyphs whose children this sheet hides with no bitmap to replace them — the state the blank copy plate was in. `--self-test` strips a control's paint and asserts the check notices |
 | `disabled.mjs` | every disabled control's ink, against the etched grey. This sheet forces opacity 1 on disabled elements so the etch is the only signal — this checks the etch is actually there |
 | `edges.mjs` | every control with both a border and an inset bevel (two edges), and any element still carrying a border radius. Fields are exempt from the border half — a win2k field's 1px sunken border *is* its edge |
 | `overlap.mjs` | two siblings' text drawn over each other. `--self-test` reinjects the toolbar-label defect it was written for and asserts the check still catches it |
@@ -44,11 +45,18 @@ export DSH_PLAYWRIGHT=/home/you/node_modules/playwright/index.mjs
 
 ## Checking a check
 
-An audit that reports zero on a broken app is worse than none. `overlap.mjs` therefore
-carries `--self-test`: it reinjects the exact defect it was written for — the toolbar
-toggles sized to a flat 22px, so their labels print over each other — and asserts the
-check catches it. It passes: 1 overlap found with the bug in place, 0 on the current
-build.
+An audit that reports zero on a broken app is worse than none, so the two checks whose
+defects were subtle carry a `--self-test` that reinjects the fault and asserts the check
+still sees it:
+
+- `overlap.mjs` sizes the toolbar toggles to a flat 22px so their labels print over each
+  other. Passes: 1 overlap with the bug in place, 0 on the current build.
+- `orphans.mjs` strips the copy button's paint, leaving its hidden glyph with no
+  replacement. Passes: 5 orphans with the paint gone, 0 on the current build.
+
+Both self-tests were wrong on their first run, in the same way — they ran before a
+session had loaded, so there was nothing to break. Worth remembering when writing the
+next one.
 
 ## Two things that waste time
 
