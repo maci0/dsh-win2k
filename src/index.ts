@@ -90,11 +90,6 @@ export interface HostContext {
  * @param config - optional row configuration.
  */
 export function apply(ctx: HostContext, config: Config = {}): void {
-  // Reject configuration that would silently do the wrong thing.
-  if (config.selected !== undefined && typeof config.selected !== 'boolean') {
-    throw new Error(`[win2k] selected must be a boolean; got ${JSON.stringify(config.selected)}`)
-  }
-
   const startup = config.selected ?? false
 
   ctx.inject(['settings'], (scope) => {

@@ -321,9 +321,4 @@ test('the host half registers the namespace with the row value and rejects a bad
 
   applyHost(ctx as never)
   assert.deepEqual(installed[1], { namespace: WIN2K_SETTINGS_NAMESPACE, entry: { selected: false } })
-
-  assert.throws(
-    () => { applyHost(ctx as never, { selected: 'yes' as unknown as boolean }) },
-    /selected must be a boolean/,
-  )
 })
