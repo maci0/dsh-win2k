@@ -5,7 +5,7 @@ and re-run the generator after changing the map. Every value here is a Windows 2
 palette colour or one of the shell's measures; see [DESIGN.md](DESIGN.md) for what each
 group is for.
 
-**165 tokens**, in 27 groups.
+**165 tokens**, in 26 groups.
 
 ## static-neutral (35)
 
@@ -247,6 +247,13 @@ group is for.
 | `--dsw-specific-bubble` | `#ffffff` |
 | `--dsw-specific-bubble-highlight` | `#a6caf0` |
 
+## font-family (2)
+
+| token | value |
+|---|---|
+| `--ds-font-family-code` | `"Win2k Mono", "Lucida Console", "Courier New", monospace` |
+| `--dsw-font-family` | `"Win2k UI", "Microsoft Sans Serif", "MS Sans Serif", Tahoma, "DejaVu Sans", Verdana, sans-serif` |
+
 ## alias-link (1)
 
 | token | value |
@@ -294,15 +301,3 @@ group is for.
 | token | value |
 |---|---|
 | `--dsw-specific-tip` | `#ffffe1` |
-
-## font-family (1)
-
-| token | value |
-|---|---|
-| `--dsw-font-family` | `"Win2k UI", "Microsoft Sans Serif", "MS Sans Serif", Tahoma, "DejaVu Sans", Verdana, sans-serif` |
-
-## - (1)
-
-| token | value |
-|---|---|
-| `--ds-font-family-code` | `"Win2k Mono", "Lucida Console", "Courier New", monospace` |

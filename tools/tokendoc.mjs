@@ -14,7 +14,7 @@ const pairs = [...block[1].matchAll(/'(--[a-z0-9-]+)':\s*'([^']+)'/g)].map(m => 
 
 const groups = new Map()
 for (const [name, value] of pairs) {
-  const g = name.replace(/^--(dsw|dsh)-/, '').split('-').slice(0, 2).join('-')
+  const g = name.replace(/^--(dsw|dsh|ds)-/, '').split('-').slice(0, 2).join('-')
   if (!groups.has(g)) groups.set(g, [])
   groups.get(g).push([name, value])
 }
