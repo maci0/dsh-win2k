@@ -15,7 +15,7 @@ Nothing in this sheet is guessed. Three sources, in order of authority:
    `CPANEL.GIF`). The screenshots settle questions that reasoning does not: the tab
    strip's construction came from `SYSTPROP.GIF`, the caption gradient from the desktop
    captures.
-2. **The live client.** Every rule is measured after it is written — computed styles,
+8. **The live client.** Every rule is measured after it is written — computed styles,
    bounding boxes, and hit-testing — rather than eyeballed. The audit suite in §9 is
    that process made repeatable.
 3. **The client's own stylesheets**, read to find what is already correct. A defect is
@@ -209,7 +209,12 @@ decoded asset can lie — re-decode from the binary before trusting a crop.
 The defects in this sheet have come from a small number of repeating causes. Check these
 first:
 
-1. **A blanket rule reaching a sibling surface.** `button[class*="action"]` sized the
+1. **A family styled by one shared token.** The composer's docks each compute their
+   width from `--dsh-composer-card-max-width`, each subtracting its own insets, so the
+   same 16px misalignment appeared three times in three modules. Grepping the variable's
+   consumers found the last one without waiting for a crop — do that first when a defect
+   looks like something already fixed.
+2. **A blanket rule reaching a sibling surface.** `button[class*="action"]` sized the
    trajectory toolbar's labelled toggles; `[class*="_dock"]` collapsed the goal bar;
    `[class*="iconButton"]` cropped a tab-strip mark; a generic button plate dressed a
    plugin's status readout. When a fix is written, ask what *else* matches.
