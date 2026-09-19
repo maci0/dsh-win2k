@@ -170,9 +170,13 @@ Consequences enforced across the sheet:
 
 ## 7. Motion
 
-`transition-duration: 0s` and `transition-delay: 0s` on everything. The shell had no
-transitions, no fades, no easing. Shadows are hard offsets or absent; no blur anywhere
-except where the client's own overlay mask demands one, which this sheet does not add.
+`transition-duration: 0s`, `transition-delay: 0s` and `animation: none` on everything.
+The shell had no transitions, no fades, no easing and no entrance animations: lists
+appeared, they did not slide in. Killing the client's animations outright is safe
+because their base styles are the visible ones — checked element by element before
+writing the rule — and because busy state is carried by the hourglass cursor, as it
+was then. Shadows are hard offsets or absent; no blur anywhere except where the
+client's own overlay mask demands one, which this sheet does not add.
 
 ## 8. Documented deviations
 
@@ -192,7 +196,7 @@ Deliberate, and each one a judgement rather than an oversight:
 
 ## 9. Audit suite
 
-Twelve checks, re-runnable after any change, all measured against the running client:
+Thirteen checks, re-runnable after any change, all measured against the running client:
 
 | check | method | last result |
 |---|---|---|
@@ -204,6 +208,7 @@ Twelve checks, re-runnable after any change, all measured against the running cl
 | geometry | **every row of §3's metric table** — heights and type sizes per control class, plus the scrollbar's width | 15/15 |
 | spacing | every computed padding, margin and gap against §3's set | five deliberate 3px insets |
 | overflow | text a box cannot show without an ellipsis, and children escaping their parent's box | 0 clipped, 0 escaping across chat, settings and plugins |
+| motion | every element's transition durations and running animations | 0 transitions, 0 animations across chat, settings and plugins |
 | orphans | glyphs whose children the sheet hides with nothing painted in their place — a check with `--self-test`, which strips a control's paint and asserts it notices | 0 across chat, settings and plugins; self-test passes |
 | disabled | every disabled control's ink against the etched grey, since opacity 1 makes the etch the only signal | 0 unetched (caption title excepted by design) |
 | edges | every control with both a border and an inset bevel — two edges — and any element still carrying a radius | 0 double-edged, 0 rounded across chat, settings and plugins |
