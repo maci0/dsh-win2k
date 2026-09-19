@@ -18,8 +18,13 @@ export DSH_COOKIE=/tmp/dsh-cookie.json
 node tools/paletteaudit.mjs
 ```
 
-Playwright must be resolvable: either install it in this package, or run the scripts
-with `NODE_PATH` pointing at a checkout that has it.
+Playwright must be resolvable from here. Either install it in this package, or point
+`DSH_PLAYWRIGHT` at an installed copy — the scripts import it dynamically, so a path
+works as well as a package name:
+
+```sh
+export DSH_PLAYWRIGHT=/home/you/node_modules/playwright/index.mjs
+```
 
 ## What each one does
 

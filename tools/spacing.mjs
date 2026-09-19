@@ -6,7 +6,7 @@
  * DSH_COOKIE (default /tmp/w2k/cookie.json), shaped { name, value }.
  * See tools/README.md.
  */
-import { chromium } from 'playwright'
+const { chromium } = await import(process.env.DSH_PLAYWRIGHT ?? 'playwright')
 import { readFileSync } from 'node:fs'
 const cookie = JSON.parse(readFileSync(process.env.DSH_COOKIE ?? '/tmp/w2k/cookie.json','utf8'))
 const browser = await chromium.launch()
