@@ -56,6 +56,9 @@ Two rules follow from it:
 - **No gradients except the caption's**, whose two stops are ActiveTitle and
   GradientActiveTitle.
 
+The sheet's own overrides are listed value by value in [TOKENS.md](TOKENS.md), which is
+generated from the code (`tools/tokendoc.mjs`) so it cannot drift.
+
 ## 3. Metrics
 
 Measured on the live client. Values in the "measure" column are what a win2k control of
