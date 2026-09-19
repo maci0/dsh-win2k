@@ -67,6 +67,7 @@ that class was.
 | Toolbar / icon button | **22px** | 12px | 16px glyph, 2px either side, 22px floor |
 | Field, combo, chip | **22px** | 12px | white sunken face, 1px groove |
 | Checkbox / radio | **13px** | — | 13×13, sunken white, black tick |
+| Stepper (spinner) | **22px** | 12px | two 11px arrow plates, always visible |
 | Tab | **22px** (selected 23px) | 12px | contiguous; selected is 1px taller and open along the bottom |
 | Tree / list row | **22px** | 12px | 16px icon slot, 4px inset |
 | Tool row (transcript) | **24px** | 12–13px | 16px glyph slot, title column at 553 |
@@ -170,7 +171,7 @@ Deliberate, and each one a judgement rather than an oversight:
 
 ## 9. Audit suite
 
-Seven checks, re-runnable after any change, all measured against the running client:
+Eight checks, re-runnable after any change, all measured against the running client:
 
 | check | method | last result |
 |---|---|---|
@@ -180,7 +181,8 @@ Seven checks, re-runnable after any change, all measured against the running cli
 | fonts | every leaf text node's family | 0 outside Win2k UI / Tahoma / Mono |
 | dark tokens | every `--dsw-*` the client's dark appearance overrides | 167/167 owned |
 | geometry | control heights against §3, and row, icon, label and control columns against each other | one column per surface |
-| spacing | every computed padding, margin and gap against §3's set | four deliberate 3px insets |
+| spacing | every computed padding, margin and gap against §3's set | five deliberate 3px insets |
+| overflow | text a box cannot show without an ellipsis, and children escaping their parent's box | 0 real; decorative bleeds and clamps excluded |
 
 Two operational notes learned the hard way: the dev-server auth cookie **expires
 mid-session** (the audits fail with a 401 page rather than a theme error), and a cached

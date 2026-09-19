@@ -1,6 +1,6 @@
 # Audit suite
 
-Seven checks that measure this theme against the running client. They are how every
+Eight checks that measure this theme against the running client. They are how every
 rule in this plugin was verified, and how the figures in [DESIGN.md](../DESIGN.md)
 were taken. Run them after any change to `lib/client.js`.
 
@@ -36,6 +36,7 @@ export DSH_PLAYWRIGHT=/home/you/node_modules/playwright/index.mjs
 | `offgrid.mjs` | every computed padding, margin and gap against the shell's spacing set |
 | `spacing.mjs` | histograms of padding, margin and gap per property, for reading the distribution rather than exceptions |
 | `iconsize.mjs` | every bitmap host against the size its rule asks for, to catch crops |
+| `overflow.mjs` | text a box cannot show without an ellipsis, and children escaping their parent's box — excluding deliberate bleeds (a negative margin), clamps and decorative absolutes |
 | `conformance.mjs` | the app against DESIGN.md's metric table — heights and type sizes per control class |
 
 ## Two things that waste time
