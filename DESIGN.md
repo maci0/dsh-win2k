@@ -130,6 +130,9 @@ Consequences enforced across the sheet:
   where the last ends. Unselected: face
   grey, raised, white top-left / black bottom-right. Selected: white, 1px black on three
   sides, 1px taller, covering the strip's rule so the pane below flows out of it.
+- **Client area.** The content below the tab trough is a sunken field — the `--dw-sunken`
+  2px groove at the pane's edges. It is the shell's most recognisable structural cue and
+  the one piece the pane was missing: the transcript ran edge to edge as flat white.
 - **Status bar.** Spans the pane's content width, panes left-aligned with 6px padding and
   1px dividers, everything flat — including plugin readouts injected into it.
 - **Scrollbars.** 16px, raised arrow plates, sunken thumb, and the size grip drawn in the
