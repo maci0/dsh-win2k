@@ -22,10 +22,10 @@ const OFF: Snapshot = { status: 'ready', value: { selected: false }, writable: t
 /**
  * Bytes of chrome sheet the module hands the engine, recorded on the baseline
  * above. The sheet is stored pre-normalized, so this is an equality: a runtime
- * normalizer would re-emit the same bytes but pay a second 167KB copy, and
+ * normalizer would re-emit the same bytes but pay a second 168KB copy, and
  * newlines left in the literal would move the number.
  */
-const SHEET_BYTES = 167_227
+const SHEET_BYTES = 167_594
 
 /** Median CPU microseconds of `runs` evaluations of a fresh (uncompiled) source. */
 function coldInitUs(runs = 15): number {
