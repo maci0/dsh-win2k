@@ -158,6 +158,13 @@ cheap enough to re-run after any change — several of the fixes above came from
 | icon sizes | every svg host with a bitmap background, against the size its rule asks for | only contain-fit rows remain |
 | hover | each control class hovered with the mouse, diffing background and shadow at rest | all controls respond; status readouts and the selected tab correctly do not |
 | geometry | control heights against the 22/23px grid, and row, icon, label and control columns against each other | one column per surface |
+| spacing | every computed padding, margin and gap, against the set the shell built from | four 3px insets remain, all deliberate (see below) |
+
+The spacing set Windows 2000 built its chrome from is **1, 2, 3, 4, 6, 7, 8, 10, 11, 12, 16, 20, 24**.
+Nothing in a dialog landed on 5, 9, 14, 18 or 22. The four 3px values the audit still reports are the
+caption's text inset, the tab strip's inset (which must match it), and the sidebar logo row — 3px is the
+shell's own toolbar and caption measure, so they stay rather than being snapped to a grid the shell did
+not use.
 
 The dark-token and coverage checks are text-level and can be wrong about coverage when a rule is written in
 CSS syntax inside the sheet rather than in the token map; the computed-style checks are the ones that settle
