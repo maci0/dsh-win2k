@@ -130,6 +130,13 @@ Consequences enforced across the sheet:
   where the last ends. Unselected: face
   grey, raised, white top-left / black bottom-right. Selected: white, 1px black on three
   sides, 1px taller, covering the strip's rule so the pane below flows out of it.
+- **The composer column.** One width axis, published as `--dsh-composer-card-max-width`
+  (which this sheet redeclares as the chat content width, so the card and the message
+  column are the same 896px). Every dock that hangs off the composer — the To-dos
+  panel, the queue chip, the goal bar — caps itself at that variable, and each of the
+  three was independently insetting its own plate by 16px until this sheet forced them
+  onto the axis. When adding a dock, check which token it caps itself with before
+  trusting its edges.
 - **Client area.** The content below the tab trough is a sunken field — the `--dw-sunken`
   2px groove at the pane's edges. It is the shell's most recognisable structural cue and
   the one piece the pane was missing: the transcript ran edge to edge as flat white.
