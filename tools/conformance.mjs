@@ -36,7 +36,7 @@ const SPEC = [
   ['tab (unselected)', '[role="tab"][aria-selected="false"]', 22, null],
   ['tab (selected)', '[role="tab"][aria-selected="true"]', 23, null],
   ['caption bar', 'header:has([data-conversation-header-leading]) > div:first-child', 20, null],
-  ['caption control', 'header:has([data-conversation-header-leading]) > div:first-child button', 18, 11],
+  ['caption control', 'header:has([data-conversation-header-leading]) > div:first-child button', 16, 11],
   ['status bar', '[class*="_dock"]:not([data-goal-bar])', null, 11],
   ['toolbar chip', '[class*="composerStack"] [class*="trigger"]', 22, 12],
 ]

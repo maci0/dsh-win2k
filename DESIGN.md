@@ -79,7 +79,7 @@ that class was.
 | Tool row (transcript) | **24px** | 12–13px | 16px glyph slot, title column at 553 |
 | Trajectory table row | **24px** | 12px | cell height 24, event inside 22 |
 | Caption bar | **20px** | 12px bold | |
-| Caption control | **18px** | 11px | 22px wide for icon plates |
+| Caption control | **16px** | 11px | 22px wide for icon plates, 2px clear of the band |
 | Status bar | **27px** | 11px | spans the pane, flat panes with dividers |
 | Menu item | **18px** | 12px | 20px check gutter |
 | Scrollbar | **16px** | — | arrows, thumb, size grip at the corner |
@@ -122,10 +122,12 @@ Consequences enforced across the sheet:
 ## 5. Chrome anatomy
 
 - **Caption.** 20px, ActiveTitle to GradientActiveTitle, running left to right. Title in
-  12px bold Tahoma, `#ffffff`, inset 3px. Controls are 18px plates inset 20px from each
-  end; the control group carries no negative margin (a `-16px` one made the panel toggle
-  hang outside the band).
-- **Tabs.** Contiguous — no gap, one tab starting where the last ends. Unselected: face
+  12px bold Tahoma, `#ffffff`, inset 3px. Controls are 16px plates inset 20px from each
+  end, leaving 2px clear of the band top and bottom; the control group carries no negative
+  margin (a `-16px` one made the panel toggle hang outside the band).
+- **Tabs.** The trough spans the pane — a tab strip inset from the window edges reads as
+  a borderless grey band — and the tabs are contiguous within it: no gap, one tab starting
+  where the last ends. Unselected: face
   grey, raised, white top-left / black bottom-right. Selected: white, 1px black on three
   sides, 1px taller, covering the strip's rule so the pane below flows out of it.
 - **Status bar.** Spans the pane's content width, panes left-aligned with 6px padding and
