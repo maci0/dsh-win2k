@@ -133,7 +133,8 @@ Every `--dsw-alias-*`, `--dsw-static-*` and `--dsw-specific-*` name the sheet se
 The full reference this plugin is built against — palette, metrics, bevels, chrome anatomy,
 iconography, motion, deliberate deviations, the audit suite and the hazard list — is in
 [DESIGN.md](DESIGN.md). Every number there is either read off the live client or taken from the
-Windows 2000 media, and it records how each is verified.
+Windows 2000 media, and it records how each is verified. The checks themselves ship in
+[tools/](tools/README.md), so the suite can be re-run against a live client.
 
 ## What is still drawn
 
