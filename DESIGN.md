@@ -122,9 +122,11 @@ Consequences enforced across the sheet:
   1px dividers, everything flat — including plugin readouts injected into it.
 - **Scrollbars.** 16px, raised arrow plates, sunken thumb, and the size grip drawn in the
   corner where two scrollbars meet.
-- **Menus.** Face grey, 2px raised, a 20px check gutter on the left, and a hard
-  `2px 2px 0 rgba(0,0,0,.35)` cast shadow — never a blur.
-- **Trees.** +/− expander boxes in a 16px slot, 4px row inset, 19px indent per level.
+- **Menus.** Face grey with 2px padding, a 16px check slot ordered to the left of the
+  label, 18px item height at 6px either side, and a hard `2px 2px 0 rgba(0,0,0,.35)` cast
+  shadow — never a blur.
+- **Trees.** 22px rows with a 16px expander slot and a 4px row inset; the level
+  indentation is the client's own, left as it is.
 - **Infotips.** `#ffffe1` with a 1px black frame and black text — including the session
   hover card, which the client renders as a floating body-level element.
 - **Progress.** Sunken 14px track with segmented bars; the reasoning "Think" rows use the
