@@ -175,7 +175,8 @@ Deliberate, and each one a judgement rather than an oversight:
   a dim is what every user expects from a modal today. The masks are the only translucent
   values in the sheet.
 - **The transcript is a centred reading column**, not a full-width document view. The
-  composer, the To-dos dock and the goal bar all share that column's width axis.
+  composer and everything docked to it — the To-dos panel, the queue chip, the goal bar —
+  all share that column's width axis, so their plates line up with the input box.
 - **Transparency, not translucency, where the client expects a tint.** Where the client
   ships a 10% navy hover, this sheet substitutes the shell's opaque hover face.
 - **The deployment's appearance flag is irrelevant to colour.** This sheet forces a light
