@@ -174,8 +174,10 @@ Consequences enforced across the sheet:
 The shell had no transitions, no fades, no easing and no entrance animations: lists
 appeared, they did not slide in. Killing the client's animations outright is safe
 because their base styles are the visible ones — checked element by element before
-writing the rule — and because busy state is carried by the hourglass cursor, as it
-was then. Shadows are hard offsets or absent; no blur anywhere except where the
+writing the rule — and because busy state is carried by the hourglass cursor, which
+this sheet already sets on `[aria-busy="true"]` and `[data-state="running"]`. That
+matters more than it sounds: the client's two infinite spinners now stand frozen, so
+the cursor is the whole of the busy signal, exactly as it was then. Shadows are hard offsets or absent; no blur anywhere except where the
 client's own overlay mask demands one, which this sheet does not add.
 
 ## 8. Documented deviations
