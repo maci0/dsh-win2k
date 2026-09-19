@@ -133,10 +133,9 @@ Every `--dsw-alias-*`, `--dsw-static-*` and `--dsw-specific-*` name the sheet se
 The full reference this plugin is built against — palette, metrics, bevels, chrome anatomy,
 iconography, motion, deliberate deviations, the audit suite and the hazard list — is in
 [DESIGN.md](DESIGN.md). Every number there is either read off the live client or taken from the
-Windows 2000 media, and it records how each is verified. The token map it describes is
-listed value by value in [TOKENS.md](TOKENS.md), generated from the code. The checks
-themselves ship in [tools/](tools/README.md), so the suite can be re-run against a live
-client.
+Windows 2000 media, and it records how each is verified. Its token map lives in
+[lib/client.js](lib/client.js). The checks themselves ship in [tools/](tools/README.md),
+so the suite can be re-run against a live client.
 
 ## What is still drawn
 
@@ -156,29 +155,9 @@ is a flat list of one-row sections with every row at the same padding — there 
 ## Audits
 
 Every claim in this sheet is measured against the running client rather than eyeballed, and the checks are
-cheap enough to re-run after any change — several of the fixes above came from re-running one:
-
-| check | how | last result |
-|---|---|---|
-| palette | every element's background, text, border and gradient stop, classified by hue and lightness against the 16-colour set | 0 offenders in session, trajectory, settings, plugins |
-| translucency | any surface or ink with an alpha between 0 and 1, since it composites to a colour no palette entry names | 0 across the same four views |
-| contrast | every text node's colour against its nearest opaque ancestor, flagging anything under 3:1 | 0 in hero, session, settings, plugins |
-| fonts | every leaf text node's computed family | 0 outside Win2k UI / Tahoma / Mono |
-| dark tokens | every `--dsw-*` the client's dark appearance overrides, diffed against the ones this sheet owns | 167/167 |
-| icon sizes | every svg host with a bitmap background, against the size its rule asks for | only contain-fit rows remain |
-| hover | each control class hovered with the mouse, diffing background and shadow at rest | all controls respond; status readouts and the selected tab correctly do not |
-| geometry | control heights against the 22/23px grid, and row, icon, label and control columns against each other | one column per surface |
-| spacing | every computed padding, margin and gap, against the set the shell built from | four 3px insets remain, all deliberate (see below) |
-
-The spacing set Windows 2000 built its chrome from is **1, 2, 3, 4, 6, 7, 8, 10, 11, 12, 16, 20, 24**.
-Nothing in a dialog landed on 5, 9, 14, 18 or 22. The four 3px values the audit still reports are the
-caption's text inset, the tab strip's inset (which must match it), and the sidebar logo row — 3px is the
-shell's own toolbar and caption measure, so they stay rather than being snapped to a grid the shell did
-not use.
-
-The dark-token and coverage checks are text-level and can be wrong about coverage when a rule is written in
-CSS syntax inside the sheet rather than in the token map; the computed-style checks are the ones that settle
-a question.
+cheap enough to re-run after any change — several of the fixes above came from re-running one. The suite,
+what each check does and its last recorded result, is the table in
+[tools/README.md](tools/README.md).
 
 ## Assets and licensing
 
@@ -196,7 +175,7 @@ The extraction is reproducible with plain `7z`, `cabextract` and a ~120-line PE 
 
 ```sh
 npm run build      # tsc -p tsconfig.build.json → lib/index.js + lib/types/
-npm test           # node --test tests/*.test.ts — 7 behavioural tests
+npm test           # node --test tests/*.test.ts — 10 tests: 7 behavioural, 3 perf gates
 npm run typecheck  # tsc -p tsconfig.json
 ```
 

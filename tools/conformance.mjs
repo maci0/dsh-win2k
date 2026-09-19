@@ -1,33 +1,11 @@
 /**
  * Audit: conformance
  *
- * Run against a live `dsh web` at http://127.0.0.1:3080 with this plugin
- * enabled. Needs a Playwright chromium and an auth cookie in the file named by
- * DSH_COOKIE (default /tmp/w2k/cookie.json), shaped { name, value }.
- * See tools/README.md.
+ * See tools/README.md for the page, the auth cookie and the other checks.
  */
-const { chromium } = await import(process.env.DSH_PLAYWRIGHT ?? 'playwright')
-import { readFileSync } from 'node:fs'
-const cookie = JSON.parse(readFileSync(process.env.DSH_COOKIE ?? '/tmp/w2k/cookie.json','utf8'))
-const browser = await chromium.launch()
-const ctx = await browser.newContext({ viewport: { width: 1680, height: 1000 } })
-await ctx.addCookies([{ name: cookie.name, value: cookie.value, domain: '127.0.0.1', path: '/' }])
-const page = await ctx.newPage()
-await page.goto('http://127.0.0.1:3080/', { waitUntil: 'networkidle', timeout: 60000 })
-await page.waitForTimeout(3500)
-if (!(await page.evaluate(() => document.body.hasAttribute('data-dsw-win2k')))) {
-  await page.getByText('Settings', { exact: true }).first().click(); await page.waitForTimeout(1500)
-  await page.getByText('Windows 2000', { exact: false }).first().click(); await page.waitForTimeout(1000)
-  await page.keyboard.press('Escape'); await page.waitForTimeout(1000)
-}
-const rows = await page.locator('[role="treeitem"]').all()
-for (const r of rows) {
-  const t = ((await r.textContent()) || '').trim()
-  if (!t || /New Session/.test(t)) continue
-  await r.click().catch(() => {})
-  await page.waitForTimeout(2600)
-  if (await page.evaluate(() => document.querySelectorAll('[data-variant]').length > 0)) break
-}
+import { browser, openSession, page } from './_page.mjs'
+
+await openSession()
 // the doc's metric table, as a check
 const SPEC = [
   ['push button', '[class*="newSession"]', 23, null],

@@ -8,7 +8,6 @@
  *   init       full module evaluation, warm (V8 compile cache hit) and cold
  *              (unique source per rep, which is what a page load sees)
  *   events     10k settings snapshot publishes + 10k cube-row renders
- *              (steadyState is the same path with the flag held on)
  *
  * The chrome sheet is one pre-normalized line in the source, so there is no
  * normalizer left to bench. The pass that was removed here measured, per
@@ -27,19 +26,22 @@
  *                                      [--events=10000]
  */
 
+import { cpus } from 'node:os'
+import { parseArgs } from 'node:util'
 import { readBundle, mount } from './harness.ts'
 
 const BUNDLE = readBundle()
 
-const args = new Map(
-  process.argv.slice(2).map((arg) => {
-    const [key, value = 'true'] = arg.replace(/^--/, '').split('=')
-    return [key, value]
-  }),
-)
-const reps = Number(args.get('reps') ?? 60)
-const eventCount = Number(args.get('events') ?? 10_000)
-const only = args.get('only') ?? 'all'
+const { values: args } = parseArgs({
+  options: {
+    only: { type: 'string', default: 'all' },
+    reps: { type: 'string', default: '60' },
+    events: { type: 'string', default: '10000' },
+  },
+})
+const reps = Number(args.reps)
+const eventCount = Number(args.events)
+const only = args.only
 
 const OFF = { status: 'ready', value: { selected: false }, writable: true }
 
@@ -79,21 +81,9 @@ function runEvents() {
   return delta
 }
 
-function runCounterChurn() {
-  const harness = mount(BUNDLE, OFF)
-  harness.publish(1, () => true)
-  const before = { ...harness.counters }
-  harness.publish(1000, () => true)
-  harness.renderRow(1000)
-  const delta = {}
-  for (const [key, value] of Object.entries(harness.counters)) delta[key] = value - before[key]
-  return delta
-}
-
 const report = {}
 if (only === 'all' || only === 'events') {
   report.events = runEvents()
-  report.steadyState = runCounterChurn()
 }
 if (only === 'all' || only === 'init') {
   report.initWarm = runInit(false)
@@ -102,7 +92,7 @@ if (only === 'all' || only === 'init') {
 
 console.log(JSON.stringify({
   node: process.version,
-  cpu: /model name\s*:\s*(.*)/.exec((await import('node:fs')).readFileSync('/proc/cpuinfo', 'utf8'))?.[1],
+  cpu: cpus()[0]?.model,
   bundleBytes: BUNDLE.length,
   reps,
   events: eventCount,

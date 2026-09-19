@@ -59,8 +59,8 @@ Two rules follow from it:
 - **No gradients except the caption's**, whose two stops are ActiveTitle and
   GradientActiveTitle.
 
-The sheet's own overrides are listed value by value in [TOKENS.md](TOKENS.md), which is
-generated from the code (`tools/tokendoc.mjs`) so it cannot drift.
+The sheet's own overrides are the `TOKENS` map in `lib/client.js` — the single copy, so
+there is nothing to keep in sync.
 
 ## 3. Metrics
 
@@ -198,24 +198,9 @@ Deliberate, and each one a judgement rather than an oversight:
 
 ## 9. Audit suite
 
-Fourteen checks, re-runnable after any change, all measured against the running client:
-
-| check | method | last result |
-|---|---|---|
-| palette | every element's background, text, border and gradient stop, classified by hue and lightness against §2 | 0 offenders in session, trajectory, settings, plugins |
-| translucency | any surface or ink with alpha between 0 and 1 at element or token level, **and** any element with opacity below 1 | 0 (masks excepted) |
-| contrast | every text node against its nearest opaque ancestor, under 3:1 flagged | 0 in hero, session, settings, plugins |
-| fonts | every leaf text node's family | 0 outside Win2k UI / Tahoma / Mono |
-| dark tokens | every `--dsw-*` the client's dark appearance overrides | 167/167 owned |
-| geometry | **every row of §3's metric table** — heights and type sizes per control class, plus the scrollbar's width | 15/15 |
-| spacing | every computed padding, margin and gap against §3's set | five deliberate 3px insets |
-| overflow | text a box cannot show without an ellipsis, and children escaping their parent's box | 0 clipped, 0 escaping across chat, settings and plugins |
-| type scale | type off the scale and fractional border widths, in the trajectory and every settings subpage | 0 off-scale, 0 fractional |
-| motion | every element's transition durations and running animations | 0 transitions, 0 animations across chat, settings and plugins |
-| orphans | glyphs whose children the sheet hides with nothing painted in their place — a check with `--self-test`, which strips a control's paint and asserts it notices | 0 across chat, settings and plugins; self-test passes |
-| disabled | every disabled control's ink against the etched grey, since opacity 1 makes the etch the only signal | 0 unetched (caption title excepted by design) |
-| edges | every control with both a border and an inset bevel — two edges — and any element still carrying a radius | 0 double-edged, 0 rounded across chat, settings and plugins |
-| overlap | two siblings' text boxes intersecting — the toolbar-label defect. Carries `--self-test`, which reinjects that defect and asserts the check still catches it | 0 pairs across chat, settings and plugins; self-test passes |
+Fourteen checks, re-runnable after any change, all measured against the running client. The
+table — what each check does and its last recorded result — is
+[tools/README.md](tools/README.md).
 
 Two operational notes learned the hard way: the dev-server auth cookie **expires
 mid-session** (the audits fail with a 401 page rather than a theme error), and a cached

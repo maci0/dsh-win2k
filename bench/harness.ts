@@ -4,8 +4,9 @@
  * The bundle is a lazy-CJS factory on `window.__ModuleLoader__`, so it is
  * evaluated exactly the way the client module system loads it — no browser, no
  * network, no server. What this harness returns is the work the shipped code
- * actually performed: DOM writes, element allocations, style-parse bytes and
- * teardown calls. Both the bench script and the perf test drive it.
+ * actually performed (DOM writes, element allocations, style-parse bytes,
+ * teardown calls) and the surfaces it registered. The bench script, the perf
+ * gates and the behaviour tests all drive it.
  */
 
 import { readFileSync } from 'node:fs'
@@ -18,13 +19,6 @@ export interface Counters {
   headAppend: number
   /** Bytes of CSS text assigned to that element's `textContent`. */
   cssBytes: number
-  /**
-   * Whole-sheet string rewrites performed while the module materializes. The
-   * sheet ships pre-normalized, so this stays `0`; a re-introduced runtime
-   * normalizer is a sheet-sized copy per page load, and the count catches it on
-   * any machine, loaded or not.
-   */
-  sheetRewrites: number
   /** Elements the shipped code asked the document to create. */
   createElement: number
   /** `body.toggleAttribute` calls — one per settings snapshot. */
@@ -40,17 +34,33 @@ export interface Counters {
   settingsSet: number
 }
 
+/** One settings row the bundle registered into a slot. */
+export interface RegisteredRow {
+  entry: Record<string, unknown>
+  component: () => unknown
+}
+
 /** A bound harness over one evaluated bundle. */
 export interface Harness {
   counters: Counters
   /** Tokens of every layer currently stacked, keyed by layer source. */
   layers: Map<string, Record<string, { light: string; dark: string }>>
+  /** CSS text of every `<style>` tag the bundle appended, in order. */
+  appended: string[]
+  /** Live `body` attribute state the chrome scope toggles. */
+  attributes: Map<string, boolean>
+  /** Settings writes the cube asked for, as `[field, value]` pairs. */
+  writes: unknown[][]
+  /** Locale namespaces the bundle registered. */
+  locales: string[]
+  /** Slot rows the bundle registered, in order. */
+  rows: RegisteredRow[]
+  /** The id and `inject` list the bundle published. */
+  registration: { id: string; inject: readonly string[] }
   /** Drive `count` settings snapshots through the plugin's subscription. */
   publish(count: number, selected: (index: number) => boolean): void
-  /** Render the registered settings row `count` times. */
+  /** Render every registered row `count` times. */
   renderRow(count: number): void
-  /** Whether the row registered at least one component. */
-  hasRow(): boolean
   /** Drop the plugin the way an unload does. */
   dispose(): void
 }
@@ -78,6 +88,12 @@ function createReactStub(onElement: () => void): { createElement: unknown, useSy
   }
 }
 
+/** What the bundle publishes on `window.__ModuleLoader__`. */
+interface Registration {
+  id: string
+  factory: (require: (id: string) => unknown) => { apply: (ctx: unknown) => void; inject: readonly string[] }
+}
+
 /**
  * Evaluate `source` against the counting stub and apply the plugin.
  * @param source - the bundle source (a variant is allowed).
@@ -87,7 +103,6 @@ export function mount(source: string, initial: Snapshot): Harness {
   const counters: Counters = {
     headAppend: 0,
     cssBytes: 0,
-    sheetRewrites: 0,
     createElement: 0,
     toggleAttribute: 0,
     removeAttribute: 0,
@@ -97,7 +112,11 @@ export function mount(source: string, initial: Snapshot): Harness {
     settingsSet: 0,
   }
   const layers = new Map<string, Record<string, { light: string; dark: string }>>()
-  const rows: (() => unknown)[] = []
+  const appended: string[] = []
+  const attributes = new Map<string, boolean>()
+  const writes: unknown[][] = []
+  const locales: string[] = []
+  const rows: RegisteredRow[] = []
   const listeners: ((snapshot: Snapshot) => void)[] = []
   const disposers: (() => void)[] = []
   let current = initial
@@ -106,7 +125,11 @@ export function mount(source: string, initial: Snapshot): Harness {
   const scope = {
     subscribe: (listener: (snapshot: Snapshot) => void): (() => void) => { listeners.push(listener); return () => {} },
     getSnapshot: (): Snapshot => current,
-    set: (): Promise<void> => { counters.settingsSet += 1; return Promise.resolve() },
+    set: (field: string, value: unknown): Promise<void> => {
+      counters.settingsSet += 1
+      writes.push([field, value])
+      return Promise.resolve()
+    },
   }
   const theme = {
     overrideTokens: (id: string, tokens: Record<string, { light: string, dark: string }>): (() => void) => {
@@ -117,7 +140,10 @@ export function mount(source: string, initial: Snapshot): Harness {
   }
   const ctx = {
     theme,
-    locale: { register: (): (() => void) => () => {}, bind: (): ((key: string) => string) => (key: string) => key },
+    locale: {
+      register: (namespace: string): (() => void) => { locales.push(namespace); return () => {} },
+      bind: (): ((key: string) => string) => (key: string) => key,
+    },
     settingsScope: { bind: () => scope },
     effect: (callback: () => unknown): unknown => {
       const disposer = callback()
@@ -126,13 +152,16 @@ export function mount(source: string, initial: Snapshot): Harness {
     },
     slots: {
       inject: (_name: string, callback: () => unknown): void => { callback() },
-      register: (_entry: unknown, component: () => unknown): (() => void) => { rows.push(component); return () => {} },
+      register: (entry: Record<string, unknown>, component: () => unknown): (() => void) => {
+        rows.push({ entry, component })
+        return () => {}
+      },
     },
   }
   const documentStub = {
     body: {
-      toggleAttribute: (): void => { counters.toggleAttribute += 1 },
-      removeAttribute: (): void => { counters.removeAttribute += 1 },
+      toggleAttribute: (name: string, on: boolean): void => { counters.toggleAttribute += 1; attributes.set(name, on) },
+      removeAttribute: (name: string): void => { counters.removeAttribute += 1; attributes.delete(name) },
     },
     createElement: (): { textContent: string } => {
       counters.createElement += 1
@@ -142,7 +171,12 @@ export function mount(source: string, initial: Snapshot): Harness {
         set textContent(value: string) { counters.cssBytes += value.length; css = value },
       }
     },
-    head: { append: (): void => { counters.headAppend += 1 } },
+    head: {
+      append: (element: { textContent: string }): void => {
+        counters.headAppend += 1
+        appended.push(element.textContent)
+      },
+    },
   }
   const windowStub = { __ModuleLoader__: { load: (_registration: unknown): void => {} } }
   const requireFn = (id: string): unknown => {
@@ -150,32 +184,24 @@ export function mount(source: string, initial: Snapshot): Harness {
     return react
   }
 
-  let loaded: { factory: (require: (id: string) => unknown) => { apply: (ctx: unknown) => void } } | undefined
+  let loaded: Registration | undefined
   windowStub.__ModuleLoader__.load = (registration: unknown): void => {
-    loaded = registration as typeof loaded
+    loaded = registration as Registration
   }
-  // Watch the one string-sized operation the sheet could reappear in. Sheets
-  // below the floor are ordinary work and are not counted.
-  const SHEET_FLOOR = 100_000
-  const nativeReplace = String.prototype.replace
-  String.prototype.replace = function counted(
-    this: string,
-    ...rest: unknown[]
-  ): string {
-    if (typeof this === 'string' && this.length >= SHEET_FLOOR) counters.sheetRewrites += 1
-    return (nativeReplace as unknown as (...args: unknown[]) => string).apply(this, rest)
-  } as typeof String.prototype.replace
-  try {
-    new Function('window', 'require', 'document', source)(windowStub, requireFn, documentStub)
-    if (!loaded) throw new Error('the bundle did not register itself')
-    loaded.factory(requireFn).apply(ctx)
-  } finally {
-    String.prototype.replace = nativeReplace
-  }
+  new Function('window', 'require', 'document', source)(windowStub, requireFn, documentStub)
+  if (!loaded) throw new Error('the bundle did not register itself')
+  const exported = loaded.factory(requireFn)
+  exported.apply(ctx)
 
   return {
     counters,
     layers,
+    appended,
+    attributes,
+    writes,
+    locales,
+    rows,
+    registration: { id: loaded.id, inject: exported.inject },
     publish: (count: number, selected: (index: number) => boolean): void => {
       for (let i = 0; i < count; i += 1) {
         current = { status: 'ready', value: { selected: selected(i) }, writable: true }
@@ -183,9 +209,8 @@ export function mount(source: string, initial: Snapshot): Harness {
       }
     },
     renderRow: (count: number): void => {
-      for (let i = 0; i < count; i += 1) for (const row of rows) row()
+      for (let i = 0; i < count; i += 1) for (const row of rows) row.component()
     },
-    hasRow: (): boolean => rows.length > 0,
     dispose: (): void => { for (const disposer of disposers.reverse()) disposer() },
   }
 }

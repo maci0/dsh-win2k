@@ -29,31 +29,27 @@ export declare const name = "win2k";
  */
 export declare const WIN2K_SETTINGS_NAMESPACE = "win2k";
 /**
- * Persisted configuration. `selected` is the plugin's own flag rather than the
- * theme service's preference: the `ui-theme` document holds built-in ids only,
- * and a third-party id cannot be written there.
+ * Configuration accepted from this plugin's row in a profile patch.
+ *
+ * `selected` is the plugin's own flag rather than the theme service's
+ * preference: the `ui-theme` document holds built-in ids only, and a
+ * third-party id cannot be written there.
  *
  * The field is spelled once: the settings namespace validates the stored value
- * against this schema and `Config` below is the same object for a row patch, so
- * the two can never drift. It defaults to `false` — the cube is the switch.
+ * against this schema and Cordis validates the row patch against the same
+ * object, so the two can never drift. It defaults to `false` — the cube is the
+ * switch.
  */
-export declare const Win2kSettings: Schema<Schemastery.ObjectS<{
+export declare const Config: Schema<Schemastery.ObjectS<{
     selected: Schema<boolean, boolean>;
 }>, Schemastery.ObjectT<{
     selected: Schema<boolean, boolean>;
 }>>;
-/**
- * Configuration accepted from this plugin's row in a profile patch.
- *
- * The exported schema is what Cordis validates the row against and fills
- * defaults from; `apply` keeps its own check as a backstop for direct callers.
- */
+/** Configuration accepted from this plugin's row in a profile patch. */
 export interface Config {
     /** Start with the theme applied. Defaults to `false`: the cube is the switch. */
     readonly selected?: boolean;
 }
-/** Row schema: the settings namespace's own schema, so the default lives once. */
-export declare const Config: Schema<Config>;
 /** The slice of the settings service this plugin uses. */
 export interface SettingsServiceLike {
     /**
