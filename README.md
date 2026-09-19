@@ -128,6 +128,13 @@ Every `--dsw-alias-*`, `--dsw-static-*` and `--dsw-specific-*` name the sheet se
 - **The menu popup's 2px inner padding.** Adding it would change a component's padding, and the bevels are kept free of padding changes so nothing shifts layout; the items' own inset padding stands.
 - **A Plugins-tab card.** The cube is the switch; a second control in Plugin configuration would be a duplicate with its own state.
 
+## Design system
+
+The full reference this plugin is built against — palette, metrics, bevels, chrome anatomy,
+iconography, motion, deliberate deviations, the audit suite and the hazard list — is in
+[DESIGN.md](DESIGN.md). Every number there is either read off the live client or taken from the
+Windows 2000 media, and it records how each is verified.
+
 ## What is still drawn
 
 A glyph-by-glyph audit of the running client (226 visible svgs) leaves four that are not a Windows 2000 bitmap:
