@@ -18,6 +18,13 @@
     "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
+  "files": [
+    "lib/**/*.js",
+    "lib/types/**/*.d.ts",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
@@ -31,6 +38,9 @@
         "@deepseek-ai/dsh-client-locale",
         "@deepseek-ai/dsh-client-ui-renderer"
       ]
+    },
+    "compatibility": {
+      "dsh": ">=0.1.0-rc.8 <0.2.0"
     }
   },
   "scripts": {
@@ -73,5 +83,9 @@
     "@deepseek-ai/schemastery": "3.18.2",
     "@types/node": "^22.20.2",
     "typescript": "^7.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maci0/dsh-win2k.git"
   }
 }
