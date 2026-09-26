@@ -45,31 +45,19 @@ export const WIN2K_SETTINGS_NAMESPACE = 'win2k'
  * switch.
  */
 export const Config = Schema.object({
-  selected: Schema.boolean().default(false),
+  selected: Schema.boolean().default(false).volatile(),
 })
 
 /** Configuration accepted from this plugin's row in a profile patch. */
 export interface Config {
-  /** Start with the theme applied. Defaults to `false`: the cube is the switch. */
-  readonly selected?: boolean
+  /** Start with the theme applied. Defaults to `false`. Volatile on v0.1.7. */
+  readonly selected?: boolean | { readonly value: boolean | undefined }
 }
 
 /** The slice of the settings service this plugin uses. */
 export interface SettingsServiceLike {
-  /**
-   * Register a namespace with the plugin's composition entry as the `base`
-   * layer, falling back to that entry when no provider is mounted.
-   */
-  installSection(
-    owner: unknown,
-    namespace: string,
-    schema: unknown,
-    entry: unknown,
-    hooks: {
-      setSource(current: () => unknown): void
-      onChange(): void
-    },
-  ): void
+  /** Merge fields into one profile entry. `ns` is the entry id. */
+  update(ns: string, patch: Record<string, unknown>): Promise<void>
 }
 
 /** Hooks the host context exposes to this plugin. */
@@ -85,17 +73,7 @@ export interface HostContext {
  * @param config - optional row configuration.
  */
 export function apply(ctx: HostContext, config: Config = {}): void {
-  const startup = config.selected ?? false
-
-  ctx.inject(['settings'], (scope) => {
-    scope.settings.installSection(
-      ctx,
-      WIN2K_SETTINGS_NAMESPACE,
-      Config,
-      { selected: startup },
-      // The browser half owns every consequence of this value; the node half
-      // only stores it, so both hooks stay empty on purpose.
-      { setSource: () => {}, onChange: () => {} },
-    )
-  })
+  // Volatile `selected` is the stored switch. The browser half reads the row.
+  void ctx
+  void config
 }

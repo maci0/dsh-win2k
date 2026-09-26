@@ -91,7 +91,8 @@ test('the cube row allocates a bounded tree per render and unload releases the l
   const before = harness.counters.reactElement
   harness.renderRow(1_000)
   const perRender = (harness.counters.reactElement - before) / 1_000
-  assert.ok(perRender >= 1 && perRender <= 8, `row render allocated ${perRender} elements`)
+  // The cube is registered twice: Appearance, and the plugin row's page.
+  assert.ok(perRender >= 1 && perRender <= 16, `row render allocated ${perRender} elements`)
 
   harness.dispose()
   assert.equal(harness.layers.size, 0, 'unload retracts the token layer')

@@ -144,7 +144,7 @@ export function mount(source: string, initial: Snapshot): Harness {
       register: (namespace: string): (() => void) => { locales.push(namespace); return () => {} },
       bind: (): ((key: string) => string) => (key: string) => key,
     },
-    settingsScope: { bind: () => scope },
+    configForms: { get: () => scope },
     effect: (callback: () => unknown): unknown => {
       const disposer = callback()
       if (typeof disposer === 'function') disposers.push(disposer as () => void)

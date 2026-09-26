@@ -12,7 +12,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { mount, readBundle, type Snapshot } from '../bench/harness.ts'
-import { apply as applyHost, WIN2K_SETTINGS_NAMESPACE } from '../src/index.ts'
+import { apply as applyHost } from '../src/index.ts'
 
 const BUNDLE = readBundle()
 
@@ -44,7 +44,7 @@ test('the bundle stacks one token layer and its locale dictionary', () => {
   const harness = mount(BUNDLE, off)
   assert.equal(harness.layers.size, 0, 'off: no layer stacked')
   assert.deepEqual(harness.locales, ['win2k'])
-  assert.deepEqual(harness.registration, { id: 'dsh-win2k', inject: ['slots', 'settingsScope', 'theme', 'locale'] })
+  assert.deepEqual(harness.registration, { id: 'dsh-win2k', inject: ['slots', 'configForms', 'theme', 'locale'] })
 
   harness.publish(1, () => true)
   assert.equal(harness.layers.size, 1)
@@ -131,27 +131,7 @@ test('a read-only deployment still applies the cube for the session', () => {
   assert.equal(harness.layers.size, 1)
 })
 
-test('the host half registers the namespace with the row value and rejects a bad one', () => {
-  const installed: { namespace: string; entry: unknown }[] = []
-  const ctx = {
-    inject: (_deps: readonly string[], callback: (scope: never) => void): void => {
-      callback({
-        settings: {
-          installSection: (
-            _owner: unknown,
-            namespace: string,
-            _schema: unknown,
-            entry: unknown,
-          ): void => { installed.push({ namespace, entry }) },
-        },
-      } as never)
-    },
-    settings: undefined as never,
-  }
-
-  applyHost(ctx as never, { selected: true })
-  assert.deepEqual(installed, [{ namespace: WIN2K_SETTINGS_NAMESPACE, entry: { selected: true } }])
-
-  applyHost(ctx as never)
-  assert.deepEqual(installed[1], { namespace: WIN2K_SETTINGS_NAMESPACE, entry: { selected: false } })
+test('the host half accepts a row without a settings namespace', () => {
+  assert.doesNotThrow(() => applyHost({} as never, { selected: true }))
+  assert.doesNotThrow(() => applyHost({} as never))
 })

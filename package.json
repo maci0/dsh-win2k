@@ -1,9 +1,9 @@
 {
   "name": "dsh-win2k",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "type": "module",
-  "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme registration, a cube under the Appearance row in Settings → General, and period chrome for the parts a token cannot spell.",
+  "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme registration, a cube under the Appearance row in Settings \u2192 General, and period chrome for the parts a token cannot spell.",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
@@ -16,9 +16,12 @@
       "default": "./lib/client.js"
     },
     "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
     "./package.json": "./package.json"
   },
   "files": [
+    "icon.svg",
+    "locale/*.json",
     "lib/**/*.js",
     "lib/types/**/*.d.ts",
     "cordis.patch.yml",
@@ -80,12 +83,13 @@
     }
   },
   "devDependencies": {
-    "@deepseek-ai/schemastery": "3.18.2",
+    "@deepseek-ai/schemastery": "^3.18.4",
     "@types/node": "^22.20.2",
     "typescript": "^7.0.2"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/maci0/dsh-win2k.git"
-  }
+  },
+  "icon": "./icon.svg"
 }
