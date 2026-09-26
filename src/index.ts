@@ -21,6 +21,7 @@
  * @module dsh-win2k
  */
 
+import type { Volatile } from '@deepseek-ai/cordis'
 import Schema from '@deepseek-ai/schemastery'
 
 /** Plugin name as it appears in the loader. */
@@ -48,10 +49,10 @@ export const Config = Schema.object({
   selected: Schema.boolean().default(false).volatile(),
 })
 
-/** Configuration accepted from this plugin's row in a profile patch. */
+/** Configuration this plugin's row resolves to. */
 export interface Config {
-  /** Start with the theme applied. Defaults to `false`. Volatile on v0.1.7. */
-  readonly selected?: boolean | { readonly value: boolean | undefined }
+  /** Start with the theme applied. The schema default fills `false`. */
+  readonly selected: Volatile<boolean>
 }
 
 /** The slice of the settings service this plugin uses. */
@@ -70,9 +71,9 @@ export interface HostContext {
 /**
  * Mount the plugin.
  * @param ctx - the host context.
- * @param config - optional row configuration.
+ * @param config - the row configuration.
  */
-export function apply(ctx: HostContext, config: Config = {}): void {
+export function apply(ctx: HostContext, config: Config): void {
   // Volatile `selected` is the stored switch. The browser half reads the row.
   void ctx
   void config

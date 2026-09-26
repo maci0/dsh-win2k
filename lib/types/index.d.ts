@@ -20,6 +20,7 @@
  *
  * @module dsh-win2k
  */
+import type { Volatile } from '@deepseek-ai/cordis';
 import Schema from '@deepseek-ai/schemastery';
 /** Plugin name as it appears in the loader. */
 export declare const name = "win2k";
@@ -45,12 +46,10 @@ export declare const Config: Schema<Schemastery.ObjectS<NoInfer<{
 }>>, Schemastery.ObjectT<NoInfer<{
     selected: Schema<boolean, boolean, "volatile-defined">;
 }>>, "plain">;
-/** Configuration accepted from this plugin's row in a profile patch. */
+/** Configuration this plugin's row resolves to. */
 export interface Config {
-    /** Start with the theme applied. Defaults to `false`. Volatile on v0.1.7. */
-    readonly selected?: boolean | {
-        readonly value: boolean | undefined;
-    };
+    /** Start with the theme applied. The schema default fills `false`. */
+    readonly selected: Volatile<boolean>;
 }
 /** The slice of the settings service this plugin uses. */
 export interface SettingsServiceLike {
@@ -66,6 +65,6 @@ export interface HostContext {
 /**
  * Mount the plugin.
  * @param ctx - the host context.
- * @param config - optional row configuration.
+ * @param config - the row configuration.
  */
-export declare function apply(ctx: HostContext, config?: Config): void;
+export declare function apply(ctx: HostContext, config: Config): void;

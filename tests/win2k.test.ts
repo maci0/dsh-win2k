@@ -12,7 +12,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { mount, readBundle, type Snapshot } from '../bench/harness.ts'
-import { apply as applyHost } from '../src/index.ts'
+import { apply as applyHost, Config } from '../src/index.ts'
 
 const BUNDLE = readBundle()
 
@@ -132,6 +132,7 @@ test('a read-only deployment still applies the cube for the session', () => {
 })
 
 test('the host half accepts a row without a settings namespace', () => {
-  assert.doesNotThrow(() => applyHost({} as never, { selected: true }))
-  assert.doesNotThrow(() => applyHost({} as never))
+  assert.doesNotThrow(() => applyHost({} as never, Config({ selected: true })))
+  // `Volatile<T>` is `{ get(): T }`, so a plain double binds with no cast.
+  assert.doesNotThrow(() => applyHost({} as never, { selected: { get: () => false } }))
 })

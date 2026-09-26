@@ -1,9 +1,9 @@
 {
   "name": "dsh-win2k",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "type": "module",
-  "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme registration, a cube under the Appearance row in Settings \u2192 General, and period chrome for the parts a token cannot spell.",
+  "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme registration, a cube under the Appearance row in Settings → General, and period chrome for the parts a token cannot spell.",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
@@ -55,6 +55,7 @@
     "node": "^22.19.0 || >=24.0.0"
   },
   "peerDependencies": {
+    "@deepseek-ai/cordis": "~4.0.4",
     "@deepseek-ai/dsh-client-locale": "*",
     "@deepseek-ai/dsh-client-ui-renderer": "*",
     "@deepseek-ai/dsh-client-ui-settings": "*",
@@ -83,6 +84,7 @@
     }
   },
   "devDependencies": {
+    "@deepseek-ai/cordis": "4.0.4",
     "@deepseek-ai/schemastery": "^3.18.4",
     "@types/node": "^22.20.2",
     "typescript": "^7.0.2"
