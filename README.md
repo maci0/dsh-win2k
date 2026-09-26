@@ -132,7 +132,7 @@ Every `--dsw-alias-*`, `--dsw-static-*` and `--dsw-specific-*` name the sheet se
 - **Period metrics.** 16px touch targets and 23px push buttons would fight the client's own minimums and keyboard affordances.
 - **A page-wide focus-ring restyle.** The client's own ring stays everywhere except the session tree, which takes the Explorer item's 1px dotted inset outline; a dotted rect is too faint to be the only keyboard affordance across the whole app.
 - **The menu popup's 2px inner padding.** Adding it would change a component's padding, and the bevels are kept free of padding changes so nothing shifts layout; the items' own inset padding stands.
-- **A Plugins-tab card.** The cube is the switch; a second control in Plugin configuration would be a duplicate with its own state.
+- **A Plugins-page card.** The cube is the switch; a second control in the row's Configure page would be a duplicate with its own state.
 
 ## Design system
 
