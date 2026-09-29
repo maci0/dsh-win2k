@@ -131,6 +131,23 @@ test('a read-only deployment still applies the cube for the session', () => {
   assert.equal(harness.layers.size, 1)
 })
 
+test('a read-only deployment shows the session selection on the cube', () => {
+  const harness = mount(BUNDLE, { status: 'ready', value: { selected: false }, writable: false })
+  const row = harness.rows[0]
+  const cubeOf = (): Element | undefined =>
+    walk(row?.component()).filter((element) => element.type === 'button')[0]
+
+  assert.equal(cubeOf()?.props['aria-pressed'], false, 'the cube starts off')
+
+  ;(cubeOf()?.props['onClick'] as () => void)()
+  assert.equal(harness.layers.size, 1, 'the session layer is stacked')
+
+  // The cube is the only control that reports the skin's state, so it must show
+  // the session selection: the palette being on while the control reads off is a
+  // contract violation.
+  assert.equal(cubeOf()?.props['aria-pressed'], true, 'the cube follows the session selection')
+})
+
 test('the host half accepts a row without a settings namespace', () => {
   assert.doesNotThrow(() => applyHost({} as never, Config({ selected: true })))
   // `Volatile<T>` is `{ get(): T }`, so a plain double binds with no cast.
