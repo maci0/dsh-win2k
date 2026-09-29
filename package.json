@@ -1,6 +1,6 @@
 {
   "name": "dsh-win2k",
-  "version": "0.9.2",
+  "version": "0.10.0",
   "private": true,
   "type": "module",
   "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme registration, a cube under the Appearance row in Settings → General, and period chrome for the parts a token cannot spell.",
@@ -43,7 +43,7 @@
       ]
     },
     "compatibility": {
-      "dsh": ">=0.1.0-rc.8 <0.2.0"
+      "dsh": ">=0.2.0-rc.2 <0.3.0"
     }
   },
   "scripts": {
