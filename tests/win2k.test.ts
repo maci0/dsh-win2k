@@ -212,3 +212,20 @@ test('every token the dark appearance redefines is pinned to one value', () => {
   for (const name of darkOnly) assert.ok(tokens[name], `${name} falls through to the base theme`)
   for (const [name, value] of Object.entries(tokens)) assert.equal(value.light, value.dark, name)
 })
+
+
+test('the cube holds a pending write and displays a refused selection', async () => {
+  let release!: (accepted: boolean) => void
+  const harness = mount(BUNDLE, off, () => new Promise((resolve) => { release = resolve }))
+  const row = harness.rows[0]!
+  const button = () => walk(row.component()).find((element) => element.type === 'button')!
+  ;(button().props['onClick'] as () => void)()
+  assert.equal(button().props['disabled'], true)
+  assert.equal(harness.layers.size, 0)
+  release(false)
+  await new Promise((resolve) => setImmediate(resolve))
+  assert.equal(button().props['disabled'], false)
+  assert.ok(walk(row.component()).some((element) => element.props['role'] === 'alert' && element.children.includes('refused')))
+  assert.equal(button().props['aria-pressed'], false)
+  assert.deepEqual(harness.writes, [['selected', true]])
+})

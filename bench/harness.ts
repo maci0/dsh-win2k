@@ -125,9 +125,17 @@ export function coldInitSampleUs(): number {
   return us
 }
 
-/** React stub with the only two entry points the bundle uses. */
-function createReactStub(onElement: () => void): { createElement: unknown, useSyncExternalStore: unknown } {
+/** React stub with state retained across each row render. */
+function createReactStub(onElement: () => void) {
+  const cells: unknown[] = []
+  let index = 0
   return {
+    beginRender: () => { index = 0 },
+    useState: (initial: unknown): [unknown, (next: unknown) => void] => {
+      const cell = index++
+      if (!Object.hasOwn(cells, cell)) cells[cell] = initial
+      return [cells[cell], (next) => { cells[cell] = next }]
+    },
     createElement: (type: unknown, props: unknown, ...children: unknown[]): unknown => {
       onElement()
       return { type, props: props ?? {}, children: children.flat() }
@@ -144,7 +152,7 @@ function createReactStub(onElement: () => void): { createElement: unknown, useSy
  * @param registration - a loaded bundle; re-running one skips the compile.
  * @param initial - the settings snapshot the mount starts from.
  */
-export function mount(registration: Registration, initial: Snapshot): Harness {
+export function mount(registration: Registration, initial: Snapshot, write: (field: string, value: unknown) => Promise<boolean | void> = () => Promise.resolve()): Harness {
   const counters: Counters = {
     headAppend: 0,
     cssBytes: 0,
@@ -170,10 +178,10 @@ export function mount(registration: Registration, initial: Snapshot): Harness {
   const scope = {
     subscribe: (listener: (snapshot: Snapshot) => void): (() => void) => { listeners.push(listener); return () => {} },
     getSnapshot: (): Snapshot => current,
-    set: (field: string, value: unknown): Promise<void> => {
+    set: (field: string, value: unknown): Promise<boolean | void> => {
       counters.settingsSet += 1
       writes.push([field, value])
-      return Promise.resolve()
+      return write(field, value)
     },
   }
   const theme = {
@@ -198,7 +206,7 @@ export function mount(registration: Registration, initial: Snapshot): Harness {
     slots: {
       inject: (_name: string, callback: () => unknown): void => { callback() },
       register: (entry: Record<string, unknown>, component: () => unknown): (() => void) => {
-        rows.push({ entry, component })
+        rows.push({ entry, component: () => { react.beginRender(); return component() } })
         return () => {}
       },
     },
