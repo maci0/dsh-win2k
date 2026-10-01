@@ -15,7 +15,7 @@ walk and the class-name reader) is `_page.mjs`; a check imports `page`,
 ```sh
 # 1. an auth cookie, written as { "name": "...", "value": "..." }
 #    the dev server's cookie is in ~/.dsh/.credentials.yaml
-export DSH_COOKIE=/tmp/dsh-cookie.json
+export DSH_COOKIE=.scratch/cookie.json   # gitignored; also the default when unset
 
 # 2. run a check
 node tools/paletteaudit.mjs
