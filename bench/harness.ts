@@ -2,16 +2,13 @@
  * Counting stub DOM for the win2k browser half.
  *
  * The bundle is a lazy-CJS factory on `window.__ModuleLoader__`, so it is
- * evaluated exactly the way the client module system loads it: no browser, no
- * network, no server. What this harness returns is the work the shipped code
+ * imported as a module against stub globals and its factory is run the way the
+ * client module system runs it: no browser, no network, no server. What this harness returns is the work the shipped code
  * actually performed (DOM writes, element allocations, style-parse bytes,
  * teardown calls) and the surfaces it registered. The bench script, the perf
  * gates and the behaviour tests all drive it.
  */
 
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 /** Everything the shipped half can move, counted. */
 export interface Counters {
@@ -74,9 +71,32 @@ export interface Snapshot {
   mode?: 'host' | 'memory'
 }
 
-/** Read the shipped browser artifact. */
-export function readBundle(): string {
-  return readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'lib', 'client.js'), 'utf8')
+/** The shipped browser artifact. */
+export const BUNDLE_URL = new URL('../lib/client.js', import.meta.url)
+
+/** What the bundle publishes on `window.__ModuleLoader__`. */
+export interface Registration {
+  id: string
+  factory: (require: (id: string) => unknown) => { apply: (ctx: unknown) => void; inject: readonly string[] }
+}
+
+/** Imports so far; each one gets its own query string. */
+let imports = 0
+
+/**
+ * Import the shipped artifact afresh. A unique query string makes a new module
+ * record, so the file is read, compiled and evaluated again, which is what a
+ * page load pays.
+ * @returns the registration the bundle handed `window.__ModuleLoader__.load`.
+ */
+export async function loadBundle(): Promise<Registration> {
+  let loaded: Registration | undefined
+  const loader = { load: (registration: Registration): void => { loaded = registration } }
+  Object.assign(globalThis, { window: { __ModuleLoader__: loader } })
+  imports += 1
+  await import(`${BUNDLE_URL.href}?import=${imports}`)
+  if (!loaded) throw new Error('the bundle did not register itself')
+  return loaded
 }
 
 /** React stub with the only two entry points the bundle uses. */
@@ -90,18 +110,15 @@ function createReactStub(onElement: () => void): { createElement: unknown, useSy
   }
 }
 
-/** What the bundle publishes on `window.__ModuleLoader__`. */
-interface Registration {
-  id: string
-  factory: (require: (id: string) => unknown) => { apply: (ctx: unknown) => void; inject: readonly string[] }
-}
-
 /**
- * Evaluate `source` against the counting stub and apply the plugin.
- * @param source - the bundle source (a variant is allowed).
+ * Run the bundle's factory against the counting stub and apply the plugin.
+ *
+ * The bundle reads `document` from the global scope, so the stub installed
+ * here serves every harness until the next mount: drive one harness at a time.
+ * @param registration - a loaded bundle; re-running one skips the compile.
  * @param initial - the settings snapshot the mount starts from.
  */
-export function mount(source: string, initial: Snapshot): Harness {
+export function mount(registration: Registration, initial: Snapshot): Harness {
   const counters: Counters = {
     headAppend: 0,
     cssBytes: 0,
@@ -180,19 +197,13 @@ export function mount(source: string, initial: Snapshot): Harness {
       },
     },
   }
-  const windowStub = { __ModuleLoader__: { load: (_registration: unknown): void => {} } }
   const requireFn = (id: string): unknown => {
     if (id !== 'react') throw new Error(`unexpected require: ${id}`)
     return react
   }
 
-  let loaded: Registration | undefined
-  windowStub.__ModuleLoader__.load = (registration: unknown): void => {
-    loaded = registration as Registration
-  }
-  new Function('window', 'require', 'document', source)(windowStub, requireFn, documentStub)
-  if (!loaded) throw new Error('the bundle did not register itself')
-  const exported = loaded.factory(requireFn)
+  Object.assign(globalThis, { document: documentStub })
+  const exported = registration.factory(requireFn)
   exported.apply(ctx)
 
   return {
@@ -203,7 +214,7 @@ export function mount(source: string, initial: Snapshot): Harness {
     writes,
     locales,
     rows,
-    registration: { id: loaded.id, inject: exported.inject },
+    registration: { id: registration.id, inject: exported.inject },
     publish: (count: number, selected: (index: number) => boolean): void => {
       for (let i = 0; i < count; i += 1) {
         current = { status: 'ready', value: { selected: selected(i) }, writable: true }
