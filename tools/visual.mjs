@@ -40,13 +40,16 @@ try {
       const root = document.createElement('div')
       root.id = 'win2k-visual-fixture'
       root.style.cssText = 'position:fixed;inset:100px 20px auto;z-index:2000;background:white;padding:8px'
-      root.innerHTML = '<div class="_fixture_dock" data-goal-bar style="width:100%"><div class="_fixture_bar" style="max-width:896px;margin:auto;background:var(--dsw-specific-menu);padding:8px">Ongoing Goal: visual check</div></div><div class="_fixture_dock" id="visual-status">Status</div><a href="#visual-link">Link</a>'
+      root.innerHTML = '<div class="_fixture_dock" data-goal-bar style="width:100%"><div class="_fixture_bar" style="max-width:896px;margin:auto;background:var(--dsw-specific-menu);padding:8px">Ongoing Goal: visual check</div></div><div class="_fixture_dock" id="visual-status">Status</div><a href="#visual-link">Link</a><button aria-busy="true">Busy</button><button data-state="running">Running</button><button style="cursor:col-resize">Resize</button><div draggable="true" role="treeitem" id="visual-drag">Drag</div>'
       document.body.append(root)
       return {
         background: getComputedStyle(root.querySelector('[data-goal-bar]')).backgroundColor,
         shadow: getComputedStyle(root.querySelector('[data-goal-bar]')).boxShadow,
         status: getComputedStyle(root.querySelector('#visual-status')).backgroundColor,
         link: getComputedStyle(root.querySelector('a')).cursor,
+        busy: getComputedStyle(root.querySelector('[aria-busy]')).cursor,
+        running: getComputedStyle(root.querySelector('[data-state]')).cursor,
+        resize: getComputedStyle(root.querySelector('[style*="col-resize"]')).cursor,
       }
     })
     check(`goal wrapper ${width}`, fixture.background, 'rgba(0, 0, 0, 0)')
@@ -54,6 +57,13 @@ try {
     check(`status face ${width}`, fixture.status, 'rgb(212, 208, 200)')
     const hand = (await readFile(new URL('./reference/link-hand.png', import.meta.url))).toString('base64')
     check(`original link hand ${width}`, fixture.link.includes(hand) && fixture.link.includes('6 2'), true)
+    check(`busy hourglass ${width}`, fixture.busy.includes('16 16, progress'), true)
+    check(`running hourglass ${width}`, fixture.running.includes('16 16, progress'), true)
+    check(`column resize ${width}`, fixture.resize.includes('15 16, col-resize'), true)
+    await page.locator('#visual-drag').hover()
+    await page.mouse.down()
+    check(`pressed drag cursor ${width}`, await page.locator('#visual-drag').evaluate(e => getComputedStyle(e).cursor.includes('16 16, move')), true)
+    await page.mouse.up()
     await shot(`${output}/goal-${width}.png`)
     await page.evaluate(() => document.querySelector('#win2k-visual-fixture').remove())
 

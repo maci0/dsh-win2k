@@ -281,3 +281,6 @@ visual authority; the Impeccable default aesthetics do not replace them.
 The pass inspected actual conversation, trajectory, menus, Settings sections and
 Plugins at desktop, tablet and phone sizes. Candidate previews use the same
 factory as the installed module, without changing profile settings.
+
+The v0.12.4 state check preserves busy, drag and column-resize cursor priority
+over the shell arrow on controls, including disabled controls.
