@@ -3,7 +3,7 @@
   "version": "0.10.0",
   "private": true,
   "type": "module",
-  "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme registration, a cube under the Appearance row in Settings → General, and period chrome for the parts a token cannot spell.",
+  "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme token layer, a cube under the Appearance row in Settings → General, and period chrome for the parts a token cannot spell.",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
