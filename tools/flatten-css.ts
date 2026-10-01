@@ -4,7 +4,7 @@
  * one space. Joining with nothing glued words together across line breaks in
  * comments ("safebecause"), which is why this is a script and not a one-liner.
  *
- * Usage: node tools/flatten-css.ts [path]   (default lib/client.js)
+ * Usage: bun tools/flatten-css.ts [path]   (default lib/client.js)
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'

@@ -160,9 +160,10 @@ COMCTL32 in Windows 2000, not loaded from an icon, so a bitmap would be a copy o
 ## Development
 
 ```sh
-npm run build      # tsc -p tsconfig.build.json → lib/index.js + lib/types/
-npm test           # node --test tests/*.test.ts: 15 tests, 12 behavioural and 3 perf gates
-npm run typecheck  # tsc -p tsconfig.json
+bun install
+bun run build      # tsc -p tsconfig.build.json → lib/index.js + lib/types/
+bun test           # 18 tests: 12 behavioural, 3 for tools/flatten-css.ts, 3 perf gates
+bun run typecheck  # tsc -p tsconfig.json
 ```
 
 One hook style is worth flagging: the client's CSS-module classes are `[hash]_[localName]`, so `[class*="newSession"]` survives the hash changing. It is the only way to reach a control the DOM gives no role, attribute or slot for; it is also the one hook that can break on a rename upstream, so each use is listed in the table above.
@@ -171,7 +172,7 @@ For local development, `dsh plugin --profile <name> add <path-to-checkout>`.
 
 `lib/client.js` is hand-authored and the build does not touch it. It is plain JavaScript on purpose: the client module system serves a package's `exports["./client"]` artifact as a lazy-CJS factory registered on `window.__ModuleLoader__`, so an out-of-tree plugin can author it directly instead of reproducing the repository's client preset.
 
-The tests evaluate the shipped bundle the way the client module system loads it, and cover the token layer, the sheet scope, flag-driven retraction on unload, row ordering, and the host settings namespace. None of them prove the *look*: that needs a browser. The mapping table above was checked in one: headless Chromium against the running `dsh web`, toggling the cube, enumerating `button` / `[role]` elements with `getComputedStyle`, reading the served bundle back from the `/plugins/??…` response, and rendering every icon data URI on a bare page at 6x to see what the bitmap actually draws. Two notes on method. The bundled headless Chromium paints no scrollbars at all (a plain red-track/green-thumb test page shows none), so the scrollbar was checked in a *headed* Chromium under `xvfb-run`, which renders the dithered track and the beveled thumb as expected. And the per-message actions were only reachable through their accessible names, which is the one place this sheet would need a new label if the UI is ever translated again. The client half is re-read from the package on each request, so once an edit to `lib/client.js` reaches the profile's installed copy (`~/.dsh/profiles/<profile>/node_modules/dsh-win2k/`) a page refresh shows it; only the host half (`npm run build`) and the bundle's own patch layer wait for a `dsh web` restart.
+dsh loads plugins on Node `^22.19.0 || >=24.0.0`; development and tests run on bun. The tests evaluate the shipped bundle the way the client module system loads it (once per process, re-running its factory per mount; the cold-load perf gate spawns a fresh `bun` per sample), and cover the token layer, the sheet scope, flag-driven retraction on unload, row ordering, and the host settings namespace. None of them prove the *look*: that needs a browser. The mapping table above was checked in one: headless Chromium against the running `dsh web`, toggling the cube, enumerating `button` / `[role]` elements with `getComputedStyle`, reading the served bundle back from the `/plugins/??…` response, and rendering every icon data URI on a bare page at 6x to see what the bitmap actually draws. Two notes on method. The bundled headless Chromium paints no scrollbars at all (a plain red-track/green-thumb test page shows none), so the scrollbar was checked in a *headed* Chromium under `xvfb-run`, which renders the dithered track and the beveled thumb as expected. And the per-message actions were only reachable through their accessible names, which is the one place this sheet would need a new label if the UI is ever translated again. The client half is re-read from the package on each request, so once an edit to `lib/client.js` reaches the profile's installed copy (`~/.dsh/profiles/<profile>/node_modules/dsh-win2k/`) a page refresh shows it; only the host half (`bun run build`) and the bundle's own patch layer wait for a `dsh web` restart.
 
 ## Licence
 
