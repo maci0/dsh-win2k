@@ -3,7 +3,7 @@
  *
  * The sheet paints icons by hiding an svg's children and putting a bitmap on the svg
  * itself. If a rule hides the children and nothing sets a background image, the
- * control renders an empty box — the shape of the blank copy plate. This finds any
+ * control renders an empty box: the shape of the blank copy plate. This finds any
  * svg left in that state.
  *
  * See tools/README.md for the page, the auth cookie and the other checks.

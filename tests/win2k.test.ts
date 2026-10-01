@@ -5,8 +5,8 @@
  * host half's settings namespace.
  *
  * The bundle is evaluated the way the client module system loads it, against
- * the counting stub in `bench/harness.ts` — the same harness the perf gates
- * drive — so these tests exercise the shipped artifact, not a copy of it.
+ * the counting stub in `bench/harness.ts` (the same harness the perf gates
+ * drive), so these tests exercise the shipped artifact, not a copy of it.
  */
 
 import assert from 'node:assert/strict'

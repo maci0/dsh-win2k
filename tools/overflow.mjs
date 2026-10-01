@@ -3,7 +3,7 @@
  *
  * Finds text a box cannot show (scrollWidth/scrollHeight beyond the client box
  * without an ellipsis), and children whose box escapes their parent's on the right
- * or bottom by more than a pixel — the shape of the "out of bounds" defects.
+ * or bottom by more than a pixel: the shape of the "out of bounds" defects.
  *
  * See tools/README.md for the page, the auth cookie and the other checks.
  */

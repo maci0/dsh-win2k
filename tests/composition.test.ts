@@ -2,8 +2,8 @@
  * Real-composition test: the host half mounts into a real `@deepseek-ai/cordis`
  * `Context` through its exported `Config`.
  *
- * The host half registers nothing — its whole job is the settings row the
- * browser cube writes — so the thing worth proving is that the row resolves at
+ * The host half registers nothing (its whole job is the settings row the
+ * browser cube writes), so the thing worth proving is that the row resolves at
  * mount and that its one field is writable by the settings document. A schema
  * that stopped serving a volatile field would leave the cube switching a flag
  * nothing persists, which no unit test of the client half can see.

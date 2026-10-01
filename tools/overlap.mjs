@@ -1,7 +1,7 @@
 /**
  * Audit: text drawn on top of text
  *
- * Two siblings whose text boxes intersect are drawn over each other — the shape of
+ * Two siblings whose text boxes intersect are drawn over each other: the shape of
  * the toolbar labels that printed "Turns" and "Calls" in the same place. Restricted
  * to siblings that both carry text, neither absolutely positioned, and neither with
  * a negative margin, so deliberate overlaps (badges over thumbnails, bleeds) are out.
