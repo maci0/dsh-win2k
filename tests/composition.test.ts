@@ -17,7 +17,7 @@ import test from 'node:test'
 import { Context } from '@deepseek-ai/cordis'
 import { createVolatile, updateVolatile } from '@deepseek-ai/cosmokit'
 
-import * as Win2k from '../lib/index.js'
+import * as Win2k from 'dsh-win2k'
 
 test('the host half mounts into a real Cordis context with a writable row', async () => {
   const ctx = new Context()

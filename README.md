@@ -180,7 +180,7 @@ The extraction is reproducible with plain `7z`, `cabextract` and a ~120-line PE 
 
 ```sh
 npm run build      # tsc -p tsconfig.build.json → lib/index.js + lib/types/
-npm test           # node --test tests/*.test.ts tests/*.test.js — 12 tests: 9 behavioural, 3 perf gates
+npm test           # node --test tests/*.test.ts: 15 tests, 12 behavioural and 3 perf gates
 npm run typecheck  # tsc -p tsconfig.json
 ```
 
