@@ -12,7 +12,7 @@ const { chromium } = await import(process.env.DSH_PLAYWRIGHT ?? 'playwright')
 import { readFileSync } from 'node:fs'
 
 const cookie = JSON.parse(readFileSync(process.env.DSH_COOKIE ?? new URL('../.scratch/cookie.json', import.meta.url), 'utf8'))
-const browser = await chromium.launch()
+const browser = await chromium.launch(process.env.DSH_CHROMIUM ? { executablePath: process.env.DSH_CHROMIUM } : {})
 const ctx = await browser.newContext({ viewport: { width: 1680, height: 1000 } })
 await ctx.addCookies([{ name: cookie.name, value: cookie.value, domain: '127.0.0.1', path: '/' }])
 const page = await ctx.newPage()

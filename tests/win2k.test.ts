@@ -67,7 +67,7 @@ test('the chrome sheet is appended once and stays scoped to the active theme', (
   // Every chrome rule is scoped: an unscoped one would repaint light and dark
   // too. The card classes are this package's own markup, so they are exempt.
   for (const rule of sheet.split('}').filter(part => part.trim().length > 0)) {
-    const selector = rule.split('{')[0] ?? ''
+    const selector = (rule.split('{')[0] ?? '').trim()
     assert.ok(
       selector.includes('data-dsw-win2k') || selector.startsWith('@') || selector.startsWith('.dw-'),
       `unscoped rule: ${selector}`,

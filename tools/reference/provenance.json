@@ -1,0 +1,7 @@
+{
+  "sourceISO": "EN_WIN2000_PRO_SP4.iso",
+  "comctl32SHA256": "ba11ad563e146bbbdbe7063e89f3c8c420e6ce05cd29aa9b0d5eed73e9886ee5",
+  "mshtmlSHA256": "58c1b47685f71fb2c231e3fcc389aa3d4cddbbb1ca657650b88003d0ba2cfa71",
+  "treeCapture": "COMCTL32.DLL SysTreeView32; class HINSTANCE verified against loaded original DLL; TVS_HASBUTTONS, TVS_LINESATROOT; indent 19; item height 22; crop [5,8,14,17]",
+  "linkHand": "MSHTML.DLL RT_GROUP_CURSOR 9801, RT_CURSOR 11; hotspot (6,2)"
+}

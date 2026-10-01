@@ -164,7 +164,7 @@ Consequences enforced across the sheet:
 - **Containment.** Every bitmap host uses `background-size: contain`, so a 16px bitmap in
   a 15px host is scaled rather than cropped.
 - **Provenance.** Each mark's source binary and resource id is recorded in the README's
-  asset table. Six marks are still hand-drawn: the +/− tree boxes, dropdown triangles,
+  asset table. Five marks are still hand-drawn: dropdown triangles,
   checkbox tick, switch, plugin package, and the Think lightbulb; Windows 2000 has no
   resource for those.
 
@@ -239,3 +239,27 @@ first:
    selector is what did it.
 8. **Verifying the asset instead of the browser.** Rendering an extracted PNG proves the
    asset, not the rule. Read the computed style off the live element.
+
+
+## 11. Visual correction pass (2026-10-01, v0.12.2)
+
+- Goal wrapper: transparent and without a status-bar groove; only the capped
+  inner plate is painted. Status chrome retains its full-width grey face.
+- Tree boxes: actual COMCTL32 tree-control output, cropped to native 9×9 and
+  painted without rescaling. Source DLL and cursor hashes are recorded in
+  `tools/reference/provenance.json`; `tools/capture-tree.c` reproduces the render.
+- Cursors: original shell arrow over menus, buttons and tree rows; MSHTML 9801
+  hand over links; I-beam only over editable text; move only while dragging.
+- Settings: 20px gradient caption, white 12px bold Tahoma title, 16px caption
+  close button, 22px navigation rows. Navigation padding targets the actual
+  `nav` element rather than every class whose name contains that word. At
+  widths below 600px the navigation becomes a horizontal scrolling row and
+  the options keep the dialog's full width.
+- Checkboxes: 13×13, exempt from the 75px dialog push-button minimum.
+- Menus: opaque ButtonFace for both the surface and group labels.
+- Package cards: 32px icon seats, 24px artwork, 12px text and an 8px icon gap.
+  Package-owned logos retain their identity; common chrome uses period assets.
+
+`tools/visual.mjs` provides native computed-style checks and desktop/mobile
+captures. Existing pixel-art palette, hard edges and no-motion rules remain the
+visual authority; the Impeccable default aesthetics do not replace them.

@@ -55,3 +55,19 @@ export DSH_PLAYWRIGHT=/home/you/node_modules/playwright/index.mjs
   than debugging the theme.
 - **A cached decoded asset can lie.** A toolbar strip decoded earlier in a session was
   wrong; re-decoding from the binary fixed it. If a crop looks impossible, re-decode.
+
+
+### Visual and asset regression
+
+Run `bun tools/visual.mjs` against the web profile. In addition to `DSH_COOKIE`
+and `DSH_PLAYWRIGHT`, `DSH_CHROMIUM` can select an installed Chromium executable;
+`DSH_VISUAL_OUTPUT` sets the screenshot/report directory. Its default is
+`.scratch/visual`. `DSH_WIN2K_BUNDLE` can select an earlier candidate artifact.
+The checks inspect native CSS and never submit settings or model requests.
+
+To reproduce the tree assets, place the original SP4 `comctl32.dll` beside the
+capture program and compile it with `i686-w64-mingw32-gcc capture-tree.c -o
+capture-tree.exe -lgdi32 -luser32`. Run in an isolated Wine prefix with
+`WINEDLLOVERRIDES=comctl32=n`; the program refuses a substitute tree class.
+Crop `(5, 8, 14, 17)` from each resulting BMP, retaining its exact pixels.
+`reference/provenance.json` records the DLL hashes and IE cursor resource.
