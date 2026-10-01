@@ -18,7 +18,7 @@ walk and the class-name reader) is `_page.mjs`; a check imports `page`,
 export DSH_COOKIE=.scratch/cookie.json   # gitignored; also the default when unset
 
 # 2. run a check
-node tools/paletteaudit.mjs
+bun tools/paletteaudit.mjs
 ```
 
 Playwright must be resolvable from here. Either install it in this package, or point
