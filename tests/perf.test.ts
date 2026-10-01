@@ -25,7 +25,7 @@ const OFF: Snapshot = { status: 'ready', value: { selected: false }, writable: t
  * left in the literal would move the number, and an edit to the sheet has to
  * move it on purpose.
  */
-const SHEET_BYTES = 167_773
+const SHEET_BYTES = 167_742
 
 /** Median CPU microseconds of `runs` evaluations of a fresh (uncompiled) source. */
 function coldInitUs(runs = 15): number {
@@ -72,7 +72,7 @@ test('a settings snapshot costs one body write and never re-stacks the layer', (
   const writes = harness.counters.toggleAttribute
   harness.publish(10_000, () => true)
 
-  // The flag changes once, so the palette is stacked exactly once — work is
+  // The flag changes once, so the palette is stacked exactly once: work is
   // proportional to the change, not to the number of snapshots.
   assert.equal(harness.counters.layerStacked - stacked, 1, 'one stack for 10k snapshots')
   assert.equal(harness.counters.layerRetracted, 0, 'nothing retracts it while it is on')
