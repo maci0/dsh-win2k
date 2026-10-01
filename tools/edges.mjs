@@ -2,8 +2,8 @@
  * Audit: doubled edges and stray radii
  *
  * A win2k control has one edge. This flags a control that carries both a border
- * and an inset bevel — two edges, which is how the Models page's buttons and the
- * add tiles looked wrong — and any element that still has a border radius, since
+ * and an inset bevel (two edges, which is how the Models page's buttons and the
+ * add tiles looked wrong) and any element that still has a border radius, since
  * the shell had none.
  *
  * Fields are exempt from the border half: a win2k text field or combo is a white

@@ -3,7 +3,7 @@
  *
  * Scenario is fixed and offline: the shipped artifact is evaluated with the
  * counting stub in `harness.ts`, so what is reported is the work the plugin
- * actually does — no browser, no server, no network.
+ * actually does: no browser, no server, no network.
  *
  *   init       full module evaluation, warm (V8 compile cache hit) and cold
  *              (unique source per rep, which is what a page load sees)

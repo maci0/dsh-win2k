@@ -15,8 +15,8 @@ Nothing in this sheet is guessed. Three sources, in order of authority:
    `CPANEL.GIF`). The screenshots settle questions that reasoning does not: the tab
    strip's construction came from `SYSTPROP.GIF`, the caption gradient from the desktop
    captures.
-8. **The live client.** Every rule is measured after it is written — computed styles,
-   bounding boxes, and hit-testing — rather than eyeballed. The audit suite in §9 is
+8. **The live client.** Every rule is measured after it is written (computed styles,
+   bounding boxes, and hit-testing) rather than eyeballed. The audit suite in §9 is
    that process made repeatable.
 3. **The client's own stylesheets**, read to find what is already correct. A defect is
    usually this sheet overriding something the client got right, not the client being
@@ -55,11 +55,11 @@ Two rules follow from it:
   to be see-through: the client also paints element opacity, and the sheet now forces
   1 on the marks it draws (the timeline spans were 78%, the caption carets 70%) and on
   disabled controls, whose state is carried by the etched label instead. The only
-  exceptions are the modal masks (`--dsw-alias-bg-mask-*`) — see §8.
+  exceptions are the modal masks (`--dsw-alias-bg-mask-*`); see §8.
 - **No gradients except the caption's**, whose two stops are ActiveTitle and
   GradientActiveTitle.
 
-The sheet's own overrides are the `TOKENS` map in `lib/client.js` — the single copy, so
+The sheet's own overrides are the `TOKENS` map in `lib/client.js`: the single copy, so
 there is nothing to keep in sync.
 
 ## 3. Metrics
@@ -72,7 +72,7 @@ that class was.
 | Push button | **23px** | 12px | win2k's standard button was 75×23 |
 | Toolbar / icon button | **22px** | 12px | 16px glyph, 2px either side, 22px floor |
 | Field, combo, chip | **22px** | 12px | white sunken face, 1px groove |
-| Checkbox / radio | **13px** | — | 13×13, sunken white, black tick |
+| Checkbox / radio | **13px** | n/a | 13×13, sunken white, black tick |
 | Stepper (spinner) | **22px** | 12px | two 11px arrow plates, always visible |
 | Tab | **22px** (selected 23px) | 12px | contiguous; selected is 1px taller and open along the bottom |
 | Tree / list row | **22px** | 12px | 16px icon slot, 4px inset |
@@ -82,7 +82,7 @@ that class was.
 | Caption control | **16px** | 11px | 22px wide for icon plates, 2px clear of the band |
 | Status bar | **27px** | 11px | spans the pane, flat panes with dividers |
 | Menu item | **18px** | 12px | 20px check gutter |
-| Scrollbar | **16px** | — | arrows, thumb, size grip at the corner |
+| Scrollbar | **16px** | n/a | arrows, thumb, size grip at the corner |
 
 **Type scale.** Chrome is 12px; status readouts 11px; the caption title 12px bold;
 transcript content keeps its own sizes for reading. Nothing fractional: the client's
@@ -92,7 +92,7 @@ transcript content keeps its own sizes for reading. Nothing fractional: the clie
 **Spacing set.** Windows 2000 built its chrome from **1, 2, 3, 4, 6, 7, 8, 10, 11, 12,
 16, 20, 24**. Nothing in a dialog lands on 5, 9, 14, 18 or 22. Five values of 3px
 remain on purpose: the caption's text inset, the tab strip's inset that has to match
-it, the sidebar's logo row, and the inline code chip's horizontal padding — 3px is
+it, the sidebar's logo row, and the inline code chip's horizontal padding; 3px is
 the shell's own caption and toolbar measure.
 
 ## 4. Bevels and surfaces
@@ -112,7 +112,7 @@ Consequences enforced across the sheet:
   sets radii from selectors more specific than a universal one (its inline code is a
   6px chip). A win2k control has no radius at all.
 - **One edge per control.** A control with the raised bevel must not also carry a 1px
-  border — that is two edges, which is what the Models page's buttons and the add tiles
+  border: that is two edges, which is what the Models page's buttons and the add tiles
   had.
 - **Faces are the same colour as the page** for docking chrome (toolbars, status bar,
   caption aside), so separation comes from the bevel and from 1px grooves, not from
@@ -125,31 +125,31 @@ Consequences enforced across the sheet:
   12px bold Tahoma, `#ffffff`, inset 3px. Controls are 16px plates inset 20px from each
   end, leaving 2px clear of the band top and bottom; the control group carries no negative
   margin (a `-16px` one made the panel toggle hang outside the band).
-- **Tabs.** The trough spans the pane — a tab strip inset from the window edges reads as
-  a borderless grey band — and the tabs are contiguous within it: no gap, one tab starting
+- **Tabs.** The trough spans the pane (a tab strip inset from the window edges reads as
+  a borderless grey band), and the tabs are contiguous within it: no gap, one tab starting
   where the last ends. Unselected: face
   grey, raised, white top-left / black bottom-right. Selected: white, 1px black on three
   sides, 1px taller, covering the strip's rule so the pane below flows out of it.
 - **The composer column.** One width axis, published as `--dsh-composer-card-max-width`
   (which this sheet redeclares as the chat content width, so the card and the message
-  column are the same 896px). Every dock that hangs off the composer — the To-dos
-  panel, the queue chip, the goal bar — caps itself at that variable, and each of the
+  column are the same 896px). Every dock that hangs off the composer (the To-dos
+  panel, the queue chip, the goal bar) caps itself at that variable, and each of the
   three was independently insetting its own plate by 16px until this sheet forced them
   onto the axis. When adding a dock, check which token it caps itself with before
   trusting its edges.
-- **Client area.** The content below the tab trough is a sunken field — the `--dw-sunken`
+- **Client area.** The content below the tab trough is a sunken field: the `--dw-sunken`
   2px groove at the pane's edges. It is the shell's most recognisable structural cue and
   the one piece the pane was missing: the transcript ran edge to edge as flat white.
 - **Status bar.** Spans the pane's content width, panes left-aligned with 6px padding and
-  1px dividers, everything flat — including plugin readouts injected into it.
+  1px dividers, everything flat, including plugin readouts injected into it.
 - **Scrollbars.** 16px, raised arrow plates, sunken thumb, and the size grip drawn in the
   corner where two scrollbars meet.
 - **Menus.** Face grey with 2px padding, a 16px check slot ordered to the left of the
   label, 18px item height at 6px either side, and a hard `2px 2px 0 rgba(0,0,0,.35)` cast
-  shadow — never a blur.
+  shadow, never a blur.
 - **Trees.** 22px rows with a 16px expander slot and a 4px row inset; the level
   indentation is the client's own, left as it is.
-- **Infotips.** `#ffffe1` with a 1px black frame and black text — including the session
+- **Infotips.** `#ffffe1` with a 1px black frame and black text, including the session
   hover card, which the client renders as a floating body-level element.
 - **Progress.** Sunken 14px track with segmented bars; the reasoning "Think" rows use the
   shell's state marks rather than a shimmer.
@@ -165,7 +165,7 @@ Consequences enforced across the sheet:
   a 15px host is scaled rather than cropped.
 - **Provenance.** Each mark's source binary and resource id is recorded in the README's
   asset table. Six marks are still hand-drawn: the +/− tree boxes, dropdown triangles,
-  checkbox tick, switch, plugin package, and the Think lightbulb — Windows 2000 has no
+  checkbox tick, switch, plugin package, and the Think lightbulb; Windows 2000 has no
   resource for those.
 
 ## 7. Motion
@@ -173,8 +173,8 @@ Consequences enforced across the sheet:
 `transition-duration: 0s`, `transition-delay: 0s` and `animation: none` on everything.
 The shell had no transitions, no fades, no easing and no entrance animations: lists
 appeared, they did not slide in. Killing the client's animations outright is safe
-because their base styles are the visible ones — checked element by element before
-writing the rule — and because busy state is carried by the hourglass cursor, which
+because their base styles are the visible ones (checked element by element before
+writing the rule), and because busy state is carried by the hourglass cursor, which
 this sheet already sets on `[aria-busy="true"]` and `[data-state="running"]`. That
 matters more than it sounds: the client's two infinite spinners now stand frozen, so
 the cursor is the whole of the busy signal, exactly as it was then. Shadows are hard offsets or absent; no blur anywhere except where the
@@ -188,23 +188,23 @@ Deliberate, and each one a judgement rather than an oversight:
   a dim is what every user expects from a modal today. The masks are the only translucent
   values in the sheet.
 - **The transcript is a centred reading column**, not a full-width document view. The
-  composer and everything docked to it — the To-dos panel, the queue chip, the goal bar —
+  composer and everything docked to it (the To-dos panel, the queue chip, the goal bar)
   all share that column's width axis, so their plates line up with the input box.
 - **Transparency, not translucency, where the client expects a tint.** Where the client
   ships a 10% navy hover, this sheet substitutes the shell's opaque hover face.
 - **The deployment's appearance flag is irrelevant to colour.** This sheet forces a light
-  UI, so every `--dsw-*` the client's dark appearance overrides is overridden here too —
+  UI, so every `--dsw-*` the client's dark appearance overrides is overridden here too:
   all 205 of them. Code-block syntax colours and overlay text are in that set.
 
 ## 9. Audit suite
 
 Fourteen checks, re-runnable after any change, all measured against the running client. The
-table — what each check does and its last recorded result — is
+table (what each check does and its last recorded result) is
 [tools/README.md](tools/README.md).
 
 Two operational notes learned the hard way: the dev-server auth cookie **expires
 mid-session** (the audits fail with a 401 page rather than a theme error), and a cached
-decoded asset can lie — re-decode from the binary before trusting a crop.
+decoded asset can lie: re-decode from the binary before trusting a crop.
 
 ## 10. Hazards
 
@@ -214,7 +214,7 @@ first:
 1. **A family styled by one shared token.** The composer's docks each compute their
    width from `--dsh-composer-card-max-width`, each subtracting its own insets, so the
    same 16px misalignment appeared three times in three modules. Grepping the variable's
-   consumers found the last one without waiting for a crop — do that first when a defect
+   consumers found the last one without waiting for a crop; do that first when a defect
    looks like something already fixed.
 2. **A blanket rule reaching a sibling surface.** `button[class*="action"]` sized the
    trajectory toolbar's labelled toggles; `[class*="_dock"]` collapsed the goal bar;
@@ -227,12 +227,12 @@ first:
 4. **Translucency.** A tint is not a palette colour. It composites to something the audit
    cannot name and the design does not contain.
 5. **Invalid declarations.** A stray token in a shorthand (`center/contain 16px`) makes
-   the browser drop the declaration silently — the symptom is an empty plate among
+   the browser drop the declaration silently: the symptom is an empty plate among
    painted ones.
 6. **A client declaration with `!important`.** Its markdown inline code is
    `font-size: 0.875em !important`, which computes to a fractional 12.25px. A plain
    declaration loses to it however specific the selector is, and an injected later
-   stylesheet loses too — only `!important` on this side settles it.
+   stylesheet loses too, and only `!important` on this side settles it.
 7. **A backtick inside a CSS comment.** The whole sheet is one JavaScript template
    literal, so a stray backtick in a comment ends the string and the file stops
    parsing. Cost one failed build this session; the comment quoting a client

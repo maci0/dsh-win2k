@@ -2,7 +2,7 @@
  * Counting stub DOM for the win2k browser half.
  *
  * The bundle is a lazy-CJS factory on `window.__ModuleLoader__`, so it is
- * evaluated exactly the way the client module system loads it — no browser, no
+ * evaluated exactly the way the client module system loads it: no browser, no
  * network, no server. What this harness returns is the work the shipped code
  * actually performed (DOM writes, element allocations, style-parse bytes,
  * teardown calls) and the surfaces it registered. The bench script, the perf
@@ -21,9 +21,9 @@ export interface Counters {
   cssBytes: number
   /** Elements the shipped code asked the document to create. */
   createElement: number
-  /** `body.toggleAttribute` calls — one per settings snapshot. */
+  /** `body.toggleAttribute` calls, one per settings snapshot. */
   toggleAttribute: number
-  /** `body.removeAttribute` calls — one per unload. */
+  /** `body.removeAttribute` calls, one per unload. */
   removeAttribute: number
   /** `React.createElement` calls (the cube row's element allocations). */
   reactElement: number

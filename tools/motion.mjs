@@ -1,7 +1,7 @@
 /**
  * Audit: motion
  *
- * Windows 2000 had none — no transitions, no fades, no easing. This lists every element
+ * Windows 2000 had none: no transitions, no fades, no easing. This lists every element
  * that still has a non-zero transition or a running animation, with its duration and
  * iteration count, so each one can be justified or removed. The caret blink is the one
  * animation the shell did have.
