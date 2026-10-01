@@ -119,9 +119,9 @@ The split between a raised plate and a flat row is the whole look, and it was ch
 | Markdown `table` (`th`, `td`), `pre`, `code` | Grey grid with a raised header face; sunken code well with a ButtonFace banner | Rule: `th`/`td` borders recoloured `#808080`, `th` gets face plus raised edge; `pre` and inline `code` get the sunken white well. Token: `--dsw-alias-markdown-code-block-banner` is ButtonFace. |
 | `::selection`, scrollbars | Navy selection, dithered track, raised thumb | Rule: `::selection` navy/white, WebKit track dithered, thumb raised. Tokens: `--dsw-alias-scrollbar-bg-l1/l2` and `-hover-l1/l2`, plus `--dsh-scrollbar-thumb`, `-thumb-hover`, `-track-margin`. Measured 16px of scrollbar gutter in the session list. |
 | Elevation, shadow, transition knobs | Hard edges and instant UI | Tokens: `--dsw-mask-blur: 0px`, `--dsw-shadow-lv1/lv2/lv3` are zero-blur offsets under a 1px `#000000` outline, `--dsw-elevation-stroke` is 1px, panel/prominent/soft lose their blur, `--dsw-linear-gradient-think` and `-think-select` are flat, `--ds-transition-duration`, `-fast` and `-slow` are `0s`. |
-| `--dsw-static-*` ramps | The win2k system palette, light to dark | Tokens: every step of the neutral (`#ffffff`/`#d4d0c8`/`#c0c0c0`/`#808080`/`#404040`/`#000000`), bluish-neutral, blue (`#3a6ea5`/`#0a246a`/`#000080`), deepseek, green, amber and red ramps is set in one grouped block per ramp — all 73 steps the base sheet defines. |
+| `--dsw-static-*` ramps | The win2k system palette, light to dark | Tokens: every step of the neutral (`#ffffff`/`#d4d0c8`/`#c0c0c0`/`#808080`/`#404040`/`#000000`), bluish-neutral, blue (`#3a6ea5`/`#0a246a`/`#000080`), deepseek, green, amber and red ramps is set in one grouped block per ramp: all 77 steps the base sheet defines, the translucent `-a08`/`-a12` diff tints included. |
 
-Every `--dsw-alias-*`, `--dsw-static-*` and `--dsw-specific-*` name the sheet sets was checked against the base sheet; the only two defined aliases it leaves to the base theme are `--dsw-alias-bg-document-preview` and `--dsw-alias-label-document-preview`, which the document-preview pane reads.
+Every `--dsw-alias-*`, `--dsw-static-*` and `--dsw-specific-*` name the sheet sets was checked against the base sheet, and none of the aliases it defines is left to the base theme.
 
 
 ## Deliberately not included
