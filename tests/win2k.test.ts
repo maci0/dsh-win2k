@@ -172,3 +172,43 @@ test('a memory-mode client still shows the cube and applies it for the session',
   assert.equal(harness.layers.size, 1)
   assert.equal(cubeOf()?.props['aria-pressed'], true)
 })
+
+test('every token the dark appearance redefines is pinned to one value', () => {
+  const harness = mount(BUNDLE, on)
+  const tokens = harness.layers.get('win2k') ?? {}
+  // Added to the base sheet's dark block in dsh 0.2.0-rc.2. Left to the base
+  // theme, a dark preference painted dark diff rows and menu headers under the
+  // skin's black ink.
+  const darkOnly = [
+    '--dsw-alias-bg-document-selection',
+    '--dsw-alias-code-diff-added',
+    '--dsw-alias-code-diff-deleted',
+    '--dsw-alias-file-diff-added-bg',
+    '--dsw-alias-file-diff-added-gutter',
+    '--dsw-alias-file-diff-added-marker',
+    '--dsw-alias-file-diff-deleted-bg',
+    '--dsw-alias-file-diff-deleted-gutter',
+    '--dsw-alias-file-diff-deleted-marker',
+    '--dsw-alias-label-deep-diving',
+    '--dsw-alias-label-deep-diving-shimmer',
+    '--dsw-alias-label-shimmer',
+    '--dsw-alias-menu-group-header-fill',
+    '--dsw-alias-menu-icon',
+    '--dsw-alias-onboarding-card-fill',
+    '--dsw-alias-onboarding-checkbox-border',
+    '--dsw-alias-onboarding-secondary-fill',
+    '--dsw-alias-state-idle-primary',
+    '--dsw-alias-switch-thumb',
+    '--dsw-alias-toast-label',
+    '--dsw-alias-tooltip-key-bg',
+    '--dsw-alias-turn-trigger-bg',
+    '--dsw-alias-turn-trigger-bg-hover',
+    '--dsw-menu-surface-fill',
+    '--dsw-static-green-500-a08',
+    '--dsw-static-green-500-a12',
+    '--dsw-static-red-400-a12',
+    '--dsw-static-red-600-a08',
+  ]
+  for (const name of darkOnly) assert.ok(tokens[name], `${name} falls through to the base theme`)
+  for (const [name, value] of Object.entries(tokens)) assert.equal(value.light, value.dark, name)
+})

@@ -194,7 +194,7 @@ Deliberate, and each one a judgement rather than an oversight:
   ships a 10% navy hover, this sheet substitutes the shell's opaque hover face.
 - **The deployment's appearance flag is irrelevant to colour.** This sheet forces a light
   UI, so every `--dsw-*` the client's dark appearance overrides is overridden here too —
-  all 167 of them. Code-block syntax colours and overlay text are in that set.
+  all 205 of them. Code-block syntax colours and overlay text are in that set.
 
 ## 9. Audit suite
 
