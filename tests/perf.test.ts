@@ -25,7 +25,7 @@ const OFF: Snapshot = { status: 'ready', value: { selected: false }, writable: t
  * left in the literal would move the number, and an edit to the sheet has to
  * move it on purpose.
  */
-const SHEET_BYTES = 167_742
+const SHEET_BYTES = 167_965
 
 /** Median CPU microseconds of `runs` evaluations of a fresh (uncompiled) source. */
 function coldInitUs(runs = 15): number {
