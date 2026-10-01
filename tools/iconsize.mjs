@@ -20,7 +20,8 @@ const scan = async (label) => {
       // what size did the rule ask for
       const m = cs.backgroundSize.match(/([\d.]+)px\s+([\d.]+)px/)
       const asked = m ? `${m[1]}x${m[2]}` : 'auto'
-      if (!fractional && w === Number(m ? m[1] : w) && h === Number(m ? m[2] : h)) continue
+      // A smaller bitmap centered in a larger hit slot is not cropped or scaled.
+      if (!fractional && w >= Number(m ? m[1] : w) && h >= Number(m ? m[2] : h)) continue
       odd.set(`${w}x${h} asked=${asked} ${isBitmap ? 'png' : 'svg'} .${local(el.parentElement).slice(0, 20)}`, (odd.get(`${w}x${h} asked=${asked} ${isBitmap ? 'png' : 'svg'} .${local(el.parentElement).slice(0, 20)}`) ?? 0) + 1)
     }
     return [...odd.entries()].slice(0, 12)

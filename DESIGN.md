@@ -55,7 +55,7 @@ Two rules follow from it:
   to be see-through: the client also paints element opacity, and the sheet now forces
   1 on the marks it draws (the timeline spans were 78%, the caption carets 70%) and on
   disabled controls, whose state is carried by the etched label instead. The only
-  exceptions are the modal masks (`--dsw-alias-bg-mask-*`); see §8.
+  exceptions are transparent masks and unpainted controls; they carry no tint.
 - **No gradients except the caption's**, whose two stops are ActiveTitle and
   GradientActiveTitle.
 
@@ -177,16 +177,15 @@ because their base styles are the visible ones (checked element by element befor
 writing the rule), and because busy state is carried by the hourglass cursor, which
 this sheet already sets on `[aria-busy="true"]` and `[data-state="running"]`. That
 matters more than it sounds: the client's two infinite spinners now stand frozen, so
-the cursor is the whole of the busy signal, exactly as it was then. Shadows are hard offsets or absent; no blur anywhere except where the
-client's own overlay mask demands one, which this sheet does not add.
+the cursor is the whole of the busy signal, exactly as it was then. Shadows are hard offsets or absent; no blur anywhere in this theme.
 
 ## 8. Documented deviations
 
 Deliberate, and each one a judgement rather than an oversight:
 
-- **Modal masks dim the page.** A win2k modal greyed its parent rather than dimming it;
-  a dim is what every user expects from a modal today. The masks are the only translucent
-  values in the sheet.
+- **Modal masks block input without dimming the page.** The parent conversation
+  caption becomes inactive grey; the dialog keeps its active gradient caption.
+  The photo viewer uses an opaque black canvas and file-drop feedback uses InfoWindow.
 - **The transcript is a centred reading column**, not a full-width document view. The
   composer and everything docked to it (the To-dos panel, the queue chip, the goal bar)
   all share that column's width axis, so their plates line up with the input box.
@@ -194,7 +193,7 @@ Deliberate, and each one a judgement rather than an oversight:
   ships a 10% navy hover, this sheet substitutes the shell's opaque hover face.
 - **The deployment's appearance flag is irrelevant to colour.** This sheet forces a light
   UI, so every `--dsw-*` the client's dark appearance overrides is overridden here too:
-  all 205 of them. Code-block syntax colours and overlay text are in that set.
+  all declared overrides. Code-block syntax colours and overlay text are in that set.
 
 ## 9. Audit suite
 
@@ -263,3 +262,22 @@ first:
 `tools/visual.mjs` provides native computed-style checks and desktop/mobile
 captures. Existing pixel-art palette, hard edges and no-motion rules remain the
 visual authority; the Impeccable default aesthetics do not replace them.
+
+## 12. Remaining-surface correction pass (2026-10-01, v0.12.3)
+
+- Caption rules follow the actual title row through the slot wrapper; the resident
+  leading slot is not the title bar. The band is 20px and its controls are 16px.
+- Sidebar Settings is a 23px button; tree labels use 12px, timestamps 11px,
+  and rows are contiguous. Disabled controls retain the original arrow cursor.
+- Highlighted menu labels and icons use white ink, including the selected check.
+- Preset names wrap instead of losing their identity to an ellipsis. Compound
+  card bodies have one enclosing frame rather than another push-button bevel.
+- Shared modal windows and the preset help reader receive the same 20px caption,
+  16px close button and original close glyph. A nested modal makes its Settings
+  parent caption inactive.
+- File-icon seats, onboarding surfaces, busy text, selection, and diff surfaces
+  use opaque palette values. Added/deleted markers retain green/maroon meaning.
+
+The pass inspected actual conversation, trajectory, menus, Settings sections and
+Plugins at desktop, tablet and phone sizes. Candidate previews use the same
+factory as the installed module, without changing profile settings.

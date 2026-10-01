@@ -13,8 +13,8 @@ const SPEC = [
   ['tree row', '[class*="projectRow"], [class*="sessionRow"]', 22, null],
   ['tab (unselected)', '[role="tab"][aria-selected="false"]', 22, null],
   ['tab (selected)', '[role="tab"][aria-selected="true"]', 23, null],
-  ['caption bar', 'header:has([data-conversation-header-leading]) > div:first-child', 20, null],
-  ['caption control', 'header:has([data-conversation-header-leading]) > div:first-child button', 16, 11],
+  ['caption bar', 'header:has([data-conversation-header-leading]) [class*="titleRow"]', 20, null],
+  ['caption control', 'header:has([data-conversation-header-leading]) [class*="titleRow"] button', 16, 11],
   ['status bar', '[class*="_dock"]:not([data-goal-bar])', null, 11],
   ['toolbar chip', '[class*="composerStack"] [class*="trigger"]', 22, 12],
 ]
@@ -38,7 +38,7 @@ const dlg = await page.evaluate(() => {
   const close = document.querySelector('[role="dialog"] [class*="close"]')
   const navCell = document.querySelector('[role="dialog"] [class*="navCell"]')
   const stepper = document.querySelector('[class*="stepper"]')
-  for (const [name, el, wantH, wantFs] of [['dialog combo', combo, 22, 12], ['dialog close', close, 22, 12], ['rail cell', navCell, 40, 12], ['stepper', stepper, 22, null]]) {
+  for (const [name, el, wantH, wantFs] of [['dialog combo', combo, 22, 12], ['dialog close', close, 16, 12], ['rail cell', navCell, 22, 12], ['stepper', stepper, 22, null]]) {
     if (!el) { out.push({ name, missing: true }); continue }
     const r = el.getBoundingClientRect(); const cs = getComputedStyle(el)
     out.push({ name, h: Math.round(r.height), fs: cs.fontSize, okH: wantH === null || Math.round(r.height) === wantH, okFs: wantFs === null || parseFloat(cs.fontSize) === wantFs })
