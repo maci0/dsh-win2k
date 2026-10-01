@@ -14,9 +14,9 @@
 
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { mount, readBundle, type Harness, type Snapshot } from '../bench/harness.ts'
+import { loadBundle, mount, type Harness, type Snapshot } from '../bench/harness.ts'
 
-const BUNDLE = readBundle()
+const BUNDLE = await loadBundle()
 const OFF: Snapshot = { status: 'ready', value: { selected: false }, writable: true }
 
 /**
@@ -27,15 +27,14 @@ const OFF: Snapshot = { status: 'ready', value: { selected: false }, writable: t
  */
 const SHEET_BYTES = 167_965
 
-/** Median CPU microseconds of `runs` evaluations of a fresh (uncompiled) source. */
-function coldInitUs(runs = 15): number {
+/** Median CPU microseconds of `runs` fresh imports and mounts of the bundle. */
+async function coldInitUs(runs = 15): Promise<number> {
   const samples: number[] = []
   for (let i = 0; i < runs + 3; i += 1) {
-    // A unique trailing comment defeats V8's compilation cache, so every
-    // iteration pays what a page load pays.
-    const source = `${BUNDLE}\n// ${i}`
+    // Each import is a new module record, so every iteration reads, compiles
+    // and evaluates the file the way a page load does.
     const before = process.cpuUsage()
-    mount(source, OFF)
+    mount(await loadBundle(), OFF)
     const after = process.cpuUsage(before)
     if (i >= 3) samples.push(after.user + after.system)
   }
@@ -47,7 +46,7 @@ function mounted(): Harness {
   return mount(BUNDLE, OFF)
 }
 
-test('module init hands the CSS engine one sheet and stays off the event path', () => {
+test('module init hands the CSS engine one sheet and stays off the event path', async () => {
   const harness = mounted()
 
   // One <style> element, one CSS parse, and the sheet bytes are the parser's
@@ -61,7 +60,7 @@ test('module init hands the CSS engine one sheet and stays off the event path', 
   )
   // Cold evaluation is the page-load cost. Baseline 2.4ms; the ceiling only
   // catches a catastrophic regression, which is what a stable CI gate can do.
-  const us = coldInitUs()
+  const us = await coldInitUs()
   assert.ok(us < 15_000, `cold module evaluation was ${us}us of CPU, baseline is 2400us`)
 })
 

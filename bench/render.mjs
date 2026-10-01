@@ -5,8 +5,8 @@
  * counting stub in `harness.ts`, so what is reported is the work the plugin
  * actually does: no browser, no server, no network.
  *
- *   init       full module evaluation, warm (V8 compile cache hit) and cold
- *              (unique source per rep, which is what a page load sees)
+ *   init       warm (the factory re-run on an already imported bundle) and
+ *              cold (a fresh import per rep, which is what a page load sees)
  *   events     10k settings snapshot publishes + 10k cube-row renders
  *
  * The chrome sheet is one pre-normalized line in the source, so there is no
@@ -26,11 +26,12 @@
  *                                      [--events=10000]
  */
 
+import { statSync } from 'node:fs'
 import { cpus } from 'node:os'
 import { parseArgs } from 'node:util'
-import { readBundle, mount } from './harness.ts'
+import { BUNDLE_URL, loadBundle, mount } from './harness.ts'
 
-const BUNDLE = readBundle()
+const BUNDLE = await loadBundle()
 
 const { values: args } = parseArgs({
   options: {
@@ -46,9 +47,9 @@ const only = args.only
 const OFF = { status: 'ready', value: { selected: false }, writable: true }
 
 /** Run `fn` once, returning CPU microseconds it burned. */
-function cpuUs(fn) {
+async function cpuUs(fn) {
   const before = process.cpuUsage()
-  fn()
+  await fn()
   const after = process.cpuUsage(before)
   return after.user + after.system
 }
@@ -59,13 +60,12 @@ function stats(samples) {
   return { p50: at(0.5), p95: at(0.95), min: sorted[0] }
 }
 
-/** `warm` re-evaluates the same source string; `cold` gives V8 a fresh one. */
-function runInit(cold) {
+/** `warm` re-runs the loaded factory; `cold` imports the file afresh. */
+async function runInit(cold) {
   const samples = []
   const passes = reps + 10
   for (let i = 0; i < passes; i += 1) {
-    const source = cold ? `${BUNDLE}\n// rep ${i}` : BUNDLE
-    const us = cpuUs(() => { mount(source, OFF) })
+    const us = await cpuUs(async () => { mount(cold ? await loadBundle() : BUNDLE, OFF) })
     if (i >= 10) samples.push(us)
   }
   return stats(samples)
@@ -86,14 +86,14 @@ if (only === 'all' || only === 'events') {
   report.events = runEvents()
 }
 if (only === 'all' || only === 'init') {
-  report.initWarm = runInit(false)
-  report.initCold = runInit(true)
+  report.initWarm = await runInit(false)
+  report.initCold = await runInit(true)
 }
 
 console.log(JSON.stringify({
   node: process.version,
   cpu: cpus()[0]?.model,
-  bundleBytes: BUNDLE.length,
+  bundleBytes: statSync(BUNDLE_URL).size,
   reps,
   events: eventCount,
   ...report,

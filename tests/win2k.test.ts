@@ -11,10 +11,10 @@
 
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { mount, readBundle, type Snapshot } from '../bench/harness.ts'
+import { loadBundle, mount, type Snapshot } from '../bench/harness.ts'
 import { apply as applyHost, Config } from '../src/index.ts'
 
-const BUNDLE = readBundle()
+const BUNDLE = await loadBundle()
 
 interface Element {
   type: unknown
