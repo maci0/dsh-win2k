@@ -62,7 +62,8 @@ export DSH_PLAYWRIGHT=/home/you/node_modules/playwright/index.mjs
 Run `bun tools/visual.mjs` against the web profile. In addition to `DSH_COOKIE`
 and `DSH_PLAYWRIGHT`, `DSH_CHROMIUM` can select an installed Chromium executable;
 `DSH_VISUAL_OUTPUT` sets the screenshot/report directory. Its default is
-`.scratch/visual`. `DSH_WIN2K_BUNDLE` can select an earlier candidate artifact.
+`.scratch/visual`. `DSH_WIN2K_BUNDLE` can select a candidate artifact for any audit script.
+The shared preview loads its actual factory without writing profile settings.
 The checks inspect native CSS and never submit settings or model requests.
 
 To reproduce the tree assets, place the original SP4 `comctl32.dll` beside the

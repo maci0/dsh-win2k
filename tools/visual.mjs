@@ -1,7 +1,7 @@
 /** Native CSS regression checks; requires the running web profile. See README. */
 import assert from 'node:assert/strict'
 import { readFile, mkdir, writeFile } from 'node:fs/promises'
-import { page, browser } from './_page.mjs'
+import { page, browser, applyCandidate, openSession } from './_page.mjs'
 
 const output = process.env.DSH_VISUAL_OUTPUT ?? '.scratch/visual'
 await mkdir(output, { recursive: true })
@@ -12,28 +12,26 @@ const check = (name, actual, expected) => {
   report.checks.push({ name, actual, expected })
 }
 try {
-  // Load the candidate through its actual factory, without a real settings write.
-  await page.evaluate(() => {
-    for (const style of document.querySelectorAll('style')) {
-      if (style.textContent.includes('@font-face{font-family:"Win2k UI"')) style.remove()
-    }
-    window.win2kVisualCapture = definition => { window.win2kVisualDefinition = definition }
+  if (!process.env.DSH_WIN2K_BUNDLE) await applyCandidate(new URL('../lib/client.js', import.meta.url))
+  const palette = await page.evaluate(() => {
+    const s = getComputedStyle(document.body)
+    return ['--dsw-alias-file-diff-added-bg', '--dsw-alias-file-diff-deleted-bg', '--dsw-alias-file-diff-added-marker', '--dsw-alias-file-diff-deleted-marker', '--dsw-alias-label-shimmer'].map(name => s.getPropertyValue(name).trim())
   })
-  const bundle = await readFile(process.env.DSH_WIN2K_BUNDLE ?? new URL('../lib/client.js', import.meta.url), 'utf8')
-  await page.addScriptTag({ content: bundle.replace('window.__ModuleLoader__.load', 'window.win2kVisualCapture') })
-  await page.evaluate(() => {
-    const scope = { getSnapshot: () => ({ status: 'ready', value: { selected: true }, writable: false }), subscribe: () => () => {} }
-    window.win2kVisualDefinition.factory(() => ({})).apply({
-      theme: { overrideTokens: (_id, tokens) => {
-        for (const [name, value] of Object.entries(tokens)) document.body.style.setProperty(name, value.light)
-        return () => {}
-      } },
-      configForms: { get: () => scope },
-      locale: { register: () => () => {}, bind: () => key => key },
-      effect: callback => callback(),
-      slots: { inject: (_name, callback) => callback(), register: () => () => {} },
-    })
-  })
+  check('opaque diff and busy palette', palette, ['#ffffff', '#ffffe1', '#008000', '#800000', '#404040'])
+  await openSession()
+  const caption = page.locator('header:has([data-conversation-header-leading]) [class*="titleRow"]')
+  if (await caption.locator('nav').count()) {
+    const metrics = await caption.evaluate(e => ({
+      gradient: getComputedStyle(e).backgroundImage.startsWith('linear-gradient'),
+      height: e.getBoundingClientRect().height,
+      titleInk: getComputedStyle(e.querySelector('nav span')).color,
+      controlHeight: e.querySelector('button').getBoundingClientRect().height,
+    }))
+    check('resident caption gradient', metrics.gradient, true)
+    check('resident caption height', metrics.height, 20)
+    check('resident caption title ink', metrics.titleInk, 'rgb(255, 255, 255)')
+    check('resident caption control height', metrics.controlHeight, 16)
+  }
   for (const width of [2000, 390]) {
     await page.setViewportSize({ width, height: 1100 })
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
@@ -105,9 +103,20 @@ try {
     check(`options fit ${width}`, metrics.optionsOverflow <= 2, true)
     check(`checkbox width ${width}`, metrics.toggleWidth, 13)
     check(`caption close ${width}`, metrics.closeHeight, 16)
+    check(`undimmed modal ${width}`, await page.evaluate(() => getComputedStyle(document.body).getPropertyValue('--dsw-alias-bg-mask-1').trim()), 'transparent')
+    const disabled = page.locator('button:disabled').first()
+    if (await disabled.count()) check(`disabled shell arrow ${width}`, await disabled.evaluate(e => getComputedStyle(e).cursor.includes('2 4')), true)
     await shot(`${output}/settings-${width}.png`)
     await dialog.getByRole('button', { name: 'Models', exact: true }).click()
     await shot(`${output}/models-${width}.png`)
+    await dialog.getByRole('button', { name: 'Agent presets', exact: true }).click()
+    const preset = await dialog.locator('[class*="cardName"]').first().evaluate(e => ({
+      wraps: getComputedStyle(e).whiteSpace,
+      overflow: getComputedStyle(e).overflow,
+      plate: getComputedStyle(e.closest('button')).boxShadow,
+    }))
+    check(`preset name remains readable ${width}`, preset, { wraps: 'normal', overflow: 'visible', plate: 'none' })
+    await shot(`${output}/presets-${width}.png`)
     await page.keyboard.press('Escape')
     await page.getByRole('button', { name: 'Plugins', exact: true }).first().click()
     await shot(`${output}/plugins-${width}.png`)

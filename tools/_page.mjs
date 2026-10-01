@@ -10,6 +10,7 @@
  */
 const { chromium } = await import(process.env.DSH_PLAYWRIGHT ?? 'playwright')
 import { readFileSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 
 const cookie = JSON.parse(readFileSync(process.env.DSH_COOKIE ?? new URL('../.scratch/cookie.json', import.meta.url), 'utf8'))
 const browser = await chromium.launch(process.env.DSH_CHROMIUM ? { executablePath: process.env.DSH_CHROMIUM } : {})
@@ -36,13 +37,44 @@ await page.evaluate(() => {
 
 /** Open the first session the sidebar offers and wait for its transcript. */
 export async function openSession() {
-  for (const row of await page.locator('[role="treeitem"]').all()) {
-    const text = ((await row.textContent()) || '').trim()
-    if (!text || /New Session/.test(text)) continue
-    await row.click().catch(() => {})
-    await page.waitForTimeout(2600)
-    if (await page.evaluate(() => document.querySelectorAll('[data-variant]').length > 0)) break
+  const sessions = page.locator('[data-row-key^="session:"]').filter({ hasNotText: /^New Session$/ })
+  for (let i = 0; i < 45 && !(await sessions.count()); i++) {
+    const folders = page.locator('[role="treeitem"][aria-expanded="false"]')
+    if (!(await folders.count())) return
+    await folders.first().click()
+    await page.waitForTimeout(100)
   }
+  if (!(await sessions.count())) return
+  await sessions.first().click()
+  await page.locator('[data-variant]').first().waitFor({ timeout: 15000 }).catch(() => {})
 }
 
 export { page, browser }
+
+/** Preview a candidate without writing profile settings. */
+export async function applyCandidate(path) {
+  // Load the candidate through its actual factory, without a real settings write.
+  await page.evaluate(() => {
+    for (const style of document.querySelectorAll('style')) {
+      if (style.textContent.includes('@font-face{font-family:"Win2k UI"')) style.remove()
+    }
+    window.win2kVisualCapture = definition => { window.win2kVisualDefinition = definition }
+  })
+  const bundle = await readFile(path, 'utf8')
+  await page.addScriptTag({ content: bundle.replace('window.__ModuleLoader__.load', 'window.win2kVisualCapture') })
+  await page.evaluate(() => {
+    const scope = { getSnapshot: () => ({ status: 'ready', value: { selected: true }, writable: false }), subscribe: () => () => {} }
+    window.win2kVisualDefinition.factory(() => ({})).apply({
+      theme: { overrideTokens: (_id, tokens) => {
+        for (const [name, value] of Object.entries(tokens)) document.body.style.setProperty(name, value.light)
+        return () => {}
+      } },
+      configForms: { get: () => scope },
+      locale: { register: () => () => {}, bind: () => key => key },
+      effect: callback => callback(),
+      slots: { inject: (_name, callback) => callback(), register: () => () => {} },
+    })
+  })
+}
+
+if (process.env.DSH_WIN2K_BUNDLE) await applyCandidate(process.env.DSH_WIN2K_BUNDLE)
