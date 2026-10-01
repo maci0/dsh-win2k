@@ -17,9 +17,7 @@
  * --only=init --reps=100` and `node --cpu-prof`.
  *
  * A CSS edit has to re-normalize the literal, or the emitted sheet keeps its
- * newlines. The one-liner:
- *
- *   node -e 'const fs=require("fs"),P="lib/client.js";const s=fs.readFileSync(P,"utf8");const m="const CSS = `";const a=s.indexOf(m)+m.length,b=s.indexOf("`",a);fs.writeFileSync(P,s.slice(0,a)+s.slice(a,b).replace(new RegExp("\\n\\s*","g"),"")+"`"+s.slice(b+1))'
+ * newlines: run `node tools/flatten-css.ts`.
  *
  * Usage:
  *   taskset -c 2 node bench/render.mjs [--only=all|init|events] [--reps=60]
