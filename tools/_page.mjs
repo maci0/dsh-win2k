@@ -2,8 +2,8 @@
  * The page every audit check drives.
  *
  * One headless Chromium against a live `dsh web` at http://127.0.0.1:3080, one
- * auth cookie from DSH_COOKIE (default /tmp/w2k/cookie.json, shaped
- * { name, value }), and the win2k cube toggled on if it is not already. A check
+ * auth cookie from DSH_COOKIE (default .scratch/cookie.json in this checkout,
+ * gitignored, shaped { name, value }), and the win2k cube toggled on if it is not already. A check
  * imports `page` for its own evaluate calls, calls `openSession()` when it needs
  * a transcript on screen, and closes `browser` when it is done. Playwright comes
  * from DSH_PLAYWRIGHT when that names an installed copy. See tools/README.md.
@@ -11,7 +11,7 @@
 const { chromium } = await import(process.env.DSH_PLAYWRIGHT ?? 'playwright')
 import { readFileSync } from 'node:fs'
 
-const cookie = JSON.parse(readFileSync(process.env.DSH_COOKIE ?? '/tmp/w2k/cookie.json','utf8'))
+const cookie = JSON.parse(readFileSync(process.env.DSH_COOKIE ?? new URL('../.scratch/cookie.json', import.meta.url), 'utf8'))
 const browser = await chromium.launch()
 const ctx = await browser.newContext({ viewport: { width: 1680, height: 1000 } })
 await ctx.addCookies([{ name: cookie.name, value: cookie.value, domain: '127.0.0.1', path: '/' }])
