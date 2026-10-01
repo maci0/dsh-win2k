@@ -3,12 +3,15 @@
  *
  * The bundle is a lazy-CJS factory on `window.__ModuleLoader__`, so it is
  * imported as a module against stub globals and its factory is run the way the
- * client module system runs it: no browser, no network, no server. What this harness returns is the work the shipped code
- * actually performed (DOM writes, element allocations, style-parse bytes,
- * teardown calls) and the surfaces it registered. The bench script, the perf
- * gates and the behaviour tests all drive it.
+ * client module system runs it: no browser, no network, no server. What this
+ * harness returns is the work the shipped code actually performed (DOM writes,
+ * element allocations, style-parse bytes, teardown calls) and the surfaces it
+ * registered. The bench script, the perf gates and the behaviour tests all
+ * drive it.
  */
 
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 
 /** Everything the shipped half can move, counted. */
 export interface Counters {
@@ -80,23 +83,46 @@ export interface Registration {
   factory: (require: (id: string) => unknown) => { apply: (ctx: unknown) => void; inject: readonly string[] }
 }
 
-/** Imports so far; each one gets its own query string. */
-let imports = 0
+/** This process's one evaluation of the bundle. */
+let bundle: Promise<Registration> | undefined
 
 /**
- * Import the shipped artifact afresh. A unique query string makes a new module
- * record, so the file is read, compiled and evaluated again, which is what a
- * page load pays.
+ * Import the shipped artifact once per process. Bun evaluates a module once
+ * (a re-import with a query string returns the same record), so every mount
+ * re-runs the captured factory, which is the per-mount unit; a fresh
+ * evaluation needs a fresh process ({@link coldInitSampleUs}).
  * @returns the registration the bundle handed `window.__ModuleLoader__.load`.
  */
-export async function loadBundle(): Promise<Registration> {
-  let loaded: Registration | undefined
-  const loader = { load: (registration: Registration): void => { loaded = registration } }
-  Object.assign(globalThis, { window: { __ModuleLoader__: loader } })
-  imports += 1
-  await import(`${BUNDLE_URL.href}?import=${imports}`)
-  if (!loaded) throw new Error('the bundle did not register itself')
-  return loaded
+export function loadBundle(): Promise<Registration> {
+  bundle ??= (async () => {
+    let loaded: Registration | undefined
+    const loader = { load: (registration: Registration): void => { loaded = registration } }
+    Object.assign(globalThis, { window: { __ModuleLoader__: loader } })
+    await import(BUNDLE_URL.href)
+    if (!loaded) throw new Error('the bundle did not register itself')
+    return loaded
+  })()
+  return bundle
+}
+
+/** A cold sample's child process is killed after this long. */
+const COLD_SAMPLE_TIMEOUT_MS = 30_000
+
+/**
+ * CPU microseconds one fresh process spends importing the bundle and mounting
+ * it: the read, compile and evaluation a page load pays. Runs
+ * `bench/cold-init.ts` under the current runtime.
+ * @returns the child's measurement.
+ * @throws when the child fails, times out or prints no number.
+ */
+export function coldInitSampleUs(): number {
+  const script = fileURLToPath(new URL('./cold-init.ts', import.meta.url))
+  const child = spawnSync(process.execPath, [script], { encoding: 'utf8', timeout: COLD_SAMPLE_TIMEOUT_MS })
+  if (child.error) throw child.error
+  if (child.status !== 0) throw new Error(`cold-init exited ${child.status}: ${child.stderr}`)
+  const us = Number(child.stdout.trim())
+  if (!Number.isFinite(us)) throw new Error(`cold-init printed ${JSON.stringify(child.stdout)}`)
+  return us
 }
 
 /** React stub with the only two entry points the bundle uses. */

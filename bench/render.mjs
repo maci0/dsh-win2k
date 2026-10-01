@@ -6,28 +6,29 @@
  * actually does: no browser, no server, no network.
  *
  *   init       warm (the factory re-run on an already imported bundle) and
- *              cold (a fresh import per rep, which is what a page load sees)
+ *              cold (a fresh process importing the bundle per rep, which is
+ *              what a page load sees)
  *   events     10k settings snapshot publishes + 10k cube-row renders
  *
  * The chrome sheet is one pre-normalized line in the source, so there is no
  * normalizer left to bench. The pass that was removed here measured, per
  * evaluation: 1.57M instructions, 3.8k cache misses, 56us CPU over the sheet,
  * warm init p50 107us -> 35us. Re-measure before/after a sheet edit with
- * `taskset -c 2 perf stat -e instructions,cache-misses -- node bench/render.mjs
- * --only=init --reps=100` and `node --cpu-prof`.
+ * `taskset -c 2 perf stat -e instructions,cache-misses -- bun bench/render.mjs
+ * --only=init --reps=100` and `bun --cpu-prof`.
  *
  * A CSS edit has to re-normalize the literal, or the emitted sheet keeps its
- * newlines: run `node tools/flatten-css.ts`.
+ * newlines: run `bun tools/flatten-css.ts`.
  *
  * Usage:
- *   taskset -c 2 node bench/render.mjs [--only=all|init|events] [--reps=60]
+ *   taskset -c 2 bun bench/render.mjs [--only=all|init|events] [--reps=60]
  *                                      [--events=10000]
  */
 
 import { statSync } from 'node:fs'
 import { cpus } from 'node:os'
 import { parseArgs } from 'node:util'
-import { BUNDLE_URL, loadBundle, mount } from './harness.ts'
+import { BUNDLE_URL, coldInitSampleUs, loadBundle, mount } from './harness.ts'
 
 const BUNDLE = await loadBundle()
 
@@ -63,7 +64,7 @@ async function runInit(cold) {
   const samples = []
   const passes = reps + 10
   for (let i = 0; i < passes; i += 1) {
-    const us = await cpuUs(async () => { mount(cold ? await loadBundle() : BUNDLE, OFF) })
+    const us = cold ? coldInitSampleUs() : await cpuUs(() => { mount(BUNDLE, OFF) })
     if (i >= 10) samples.push(us)
   }
   return stats(samples)
@@ -89,7 +90,7 @@ if (only === 'all' || only === 'init') {
 }
 
 console.log(JSON.stringify({
-  node: process.version,
+  bun: Bun.version,
   cpu: cpus()[0]?.model,
   bundleBytes: statSync(BUNDLE_URL).size,
   reps,

@@ -8,13 +8,13 @@
  *
  * Scenario: the shipped `lib/client.js`, evaluated the way the client module
  * system loads it, against the counting stub in `bench/harness.ts`. Recorded
- * baseline for the CPU ceiling: AMD Ryzen 9 9950X, node v26.9.0, median cold
- * (fresh V8 compilation, what a page load sees) module evaluation 2.4ms.
+ * baseline for the CPU ceiling: AMD Ryzen 9 9950X, bun 1.4.2, median cold
+ * (a fresh process per sample, what a page load sees) import and mount 1.6ms.
  */
 
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { loadBundle, mount, type Harness, type Snapshot } from '../bench/harness.ts'
+import { coldInitSampleUs, loadBundle, mount, type Harness, type Snapshot } from '../bench/harness.ts'
 
 const BUNDLE = await loadBundle()
 const OFF: Snapshot = { status: 'ready', value: { selected: false }, writable: true }
@@ -28,15 +28,12 @@ const OFF: Snapshot = { status: 'ready', value: { selected: false }, writable: t
 const SHEET_BYTES = 167_932
 
 /** Median CPU microseconds of `runs` fresh imports and mounts of the bundle. */
-async function coldInitUs(runs = 15): Promise<number> {
+function coldInitUs(runs = 15): number {
   const samples: number[] = []
-  for (let i = 0; i < runs + 3; i += 1) {
-    // Each import is a new module record, so every iteration reads, compiles
-    // and evaluates the file the way a page load does.
-    const before = process.cpuUsage()
-    mount(await loadBundle(), OFF)
-    const after = process.cpuUsage(before)
-    if (i >= 3) samples.push(after.user + after.system)
+  for (let i = 0; i < runs; i += 1) {
+    // A module evaluates once per process, so each sample is a fresh process
+    // that reads, compiles and evaluates the file the way a page load does.
+    samples.push(coldInitSampleUs())
   }
   return samples.sort((a, b) => a - b)[Math.floor(samples.length / 2)] ?? Number.POSITIVE_INFINITY
 }
@@ -46,7 +43,7 @@ function mounted(): Harness {
   return mount(BUNDLE, OFF)
 }
 
-test('module init hands the CSS engine one sheet and stays off the event path', async () => {
+test('module init hands the CSS engine one sheet and stays off the event path', () => {
   const harness = mounted()
 
   // One <style> element, one CSS parse, and the sheet bytes are the parser's
@@ -58,10 +55,10 @@ test('module init hands the CSS engine one sheet and stays off the event path', 
     SHEET_BYTES,
     `init must hand the parser the recorded sheet, got ${harness.counters.cssBytes} bytes`,
   )
-  // Cold evaluation is the page-load cost. Baseline 2.4ms; the ceiling only
+  // Cold evaluation is the page-load cost. Baseline 1.6ms; the ceiling only
   // catches a catastrophic regression, which is what a stable CI gate can do.
-  const us = await coldInitUs()
-  assert.ok(us < 15_000, `cold module evaluation was ${us}us of CPU, baseline is 2400us`)
+  const us = coldInitUs()
+  assert.ok(us < 15_000, `cold module evaluation was ${us}us of CPU, baseline is 1600us`)
 })
 
 test('a settings snapshot costs one body write and never re-stacks the layer', () => {
