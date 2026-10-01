@@ -70,6 +70,8 @@ export interface Snapshot {
   status: string
   value: unknown
   writable: boolean
+  /** `memory` keeps preferences process-local; absent reads as `host`. */
+  mode?: 'host' | 'memory'
 }
 
 /** Read the shipped browser artifact. */

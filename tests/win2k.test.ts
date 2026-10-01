@@ -153,3 +153,22 @@ test('the host half accepts a row without a settings namespace', () => {
   // `Volatile<T>` is `{ get(): T }`, so a plain double binds with no cast.
   assert.doesNotThrow(() => applyHost({} as never, { selected: { get: () => false } }))
 })
+
+test('a namespace the Host does not serve, or has not loaded, renders no row', () => {
+  for (const status of ['unavailable', 'loading']) {
+    const harness = mount(BUNDLE, { status, value: undefined, writable: true, mode: 'host' })
+    assert.equal(harness.rows[0]?.component(), null, `${status}: no cube to click`)
+    assert.equal(harness.layers.size, 0)
+  }
+})
+
+test('a memory-mode client still shows the cube and applies it for the session', () => {
+  const harness = mount(BUNDLE, { status: 'unavailable', value: undefined, writable: false, mode: 'memory' })
+  const cubeOf = (): Element | undefined =>
+    walk(harness.rows[0]?.component()).filter((element) => element.type === 'button')[0]
+  ;(cubeOf()?.props['onClick'] as () => void)()
+
+  assert.deepEqual(harness.writes, [])
+  assert.equal(harness.layers.size, 1)
+  assert.equal(cubeOf()?.props['aria-pressed'], true)
+})
