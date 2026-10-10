@@ -44,7 +44,7 @@ test('the bundle stacks one token layer and its locale dictionary', () => {
   const harness = mount(BUNDLE, off)
   assert.equal(harness.layers.size, 0, 'off: no layer stacked')
   assert.deepEqual(harness.locales, ['win2k'])
-  assert.deepEqual(harness.registration, { id: 'dsh-win2k', inject: ['slots', 'configForms', 'theme', 'locale'] })
+  assert.deepEqual(harness.registration, { id: '@maci0/dsh-win2k', inject: ['slots', 'configForms', 'theme', 'locale'] })
 
   harness.publish(1, () => true)
   assert.equal(harness.layers.size, 1)
