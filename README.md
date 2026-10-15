@@ -34,7 +34,7 @@ A working agent UI wearing 2000-era chrome: grey face panels, a white document w
 > would win).
 
 ```sh
-dsh plugin --profile web add github:maci0/dsh-win2k#v0.12.5
+dsh plugin --profile web add github:maci0/dsh-win2k#v0.12.6
 ```
 
 Pin a release tag: a bare `github:` spec floats on `main`. To upgrade, run the

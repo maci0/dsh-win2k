@@ -1,12 +1,12 @@
 {
   "name": "@maci0/dsh-win2k",
-  "version": "0.12.5",
+  "version": "0.12.6",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
   "type": "module",
-  "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme token layer, a cube under the Appearance row in Settings \u2192 General, and period chrome for the parts a token cannot spell.",
+  "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme token layer, a cube under the Appearance row in Settings → General, and period chrome for the parts a token cannot spell.",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
@@ -59,7 +59,7 @@
     "node": "^22.19.0 || >=24.0.0"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "4.0.5-alpha.1",
+    "@deepseek-ai/cordis": "4.0.5-alpha.2",
     "@deepseek-ai/dsh-client-locale": "*",
     "@deepseek-ai/dsh-client-ui-renderer": "*",
     "@deepseek-ai/dsh-client-ui-settings": "*",
@@ -88,8 +88,8 @@
     }
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "4.0.5-alpha.1",
-    "@deepseek-ai/schemastery": "3.18.5-alpha.1",
+    "@deepseek-ai/cordis": "4.0.5-alpha.2",
+    "@deepseek-ai/schemastery": "3.18.5-alpha.2",
     "@types/node": "^22.20.2",
     "typescript": "^7.0.2"
   },
