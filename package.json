@@ -1,12 +1,12 @@
 {
   "name": "@maci0/dsh-win2k",
-  "version": "0.12.6",
+  "version": "0.13.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
   "type": "module",
-  "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme token layer, a cube under the Appearance row in Settings → General, and period chrome for the parts a token cannot spell.",
+  "description": "Windows 2000 theme for DeepSeek Harness: a ctx.theme token layer, a cube under the Appearance row in Settings \u2192 General, and period chrome for the parts a token cannot spell.",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
