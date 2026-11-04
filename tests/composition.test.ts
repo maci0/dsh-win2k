@@ -16,6 +16,7 @@ import test from 'node:test'
 
 import { Context } from '@deepseek-ai/cordis'
 import { createVolatile, updateVolatile } from '@deepseek-ai/cosmokit'
+import type { Volatile } from '@deepseek-ai/cosmokit'
 
 import * as Win2k from '@maci0/dsh-win2k'
 
@@ -24,7 +25,7 @@ test('the host half mounts into a real Cordis context with a writable row', asyn
   const fiber = await ctx.plugin(Win2k, { selected: true })
 
   assert.equal(Win2k.WIN2K_SETTINGS_NAMESPACE, 'win2k')
-  const selected = fiber.config.selected
+  const { selected } = fiber.effectiveConfig as { selected: Volatile<boolean> }
   assert.equal(typeof selected.get, 'function', 'selected is volatile, so the document can persist it')
   assert.equal(selected.get(), true)
 
