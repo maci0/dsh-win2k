@@ -75,6 +75,15 @@ test('the chrome sheet is appended once and stays scoped to the active theme', (
   }
 })
 
+test('the chrome sheet is tagged with the package and removed on unload', () => {
+  const harness = mount(BUNDLE, off)
+  const styles = () => harness.head.filter(element => element.getAttribute('data-plugin') === '@maci0/dsh-win2k')
+
+  assert.equal(styles().length, 1)
+  harness.dispose()
+  assert.equal(styles().length, 0)
+})
+
 test('the scope attribute and the token layer follow the flag and retract on unload', () => {
   const harness = mount(BUNDLE, off)
   // Mounted with the skin off: no layer, so the chrome sheet is inert.

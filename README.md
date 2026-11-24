@@ -36,7 +36,7 @@ Requires DeepSeek Harness `>=0.2.2-rc.4 <0.3.0`. Restart DSH and refresh the bro
 > would win).
 
 ```sh
-dsh plugin --profile web add --save-exact @maci0/dsh-win2k@0.14.3
+dsh plugin --profile web add --save-exact @maci0/dsh-win2k@0.14.4
 ```
 
 Pin an exact npm version. To upgrade, run the same command with the newer
@@ -68,7 +68,7 @@ The package declares `dsh.bundle`, so the CLI appends it to `dsh.profile.bundles
 
 The layer is the only shape that sticks. The durable `ui-theme` preference schema accepts built-in ids only (`light`/`dark`/`system`), so a third-party registered id could never be the persisted preference: the document kept saying light while the in-memory preference said win2k, and the skin lost to every settings write and reload. Release v0.4.1 replaced that with the override layer, owned by this plugin's own `selected` flag.
 
-The chrome sheet is scoped under `body[data-dsw-win2k]`, the attribute the browser half toggles from that same flag, so the sheet is inert while the skin is off. The module system claims the `<style>` tag while the package materializes and disposes it on unload, along with the token layer.
+The chrome sheet is scoped under `body[data-dsw-win2k]`, the attribute the browser half toggles from that same flag, so the sheet is inert while the skin is off. The plugin's `apply` installs the `<style data-plugin="@maci0/dsh-win2k">` tag through `ctx.effect`, and the plugin's dispose removes it along with the token layer.
 
 The row registers into `settings.general.item` at **order 11.5**: ui-theme owns 10 (Appearance) and 11 (Font size), ui-chat owns 12 (Conversation display), and 12 ties with that last row, which put the cube after it on some loads and before it on others. The fractional value is the only slot that keeps it directly under Appearance on every load; two cold loads now render byte-identical dialogs. Injecting into the slot waits for its owner, so load order does not matter. A deployment whose settings service does not serve this namespace renders no row at all.
 

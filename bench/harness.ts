@@ -47,6 +47,8 @@ export interface Harness {
   layers: Map<string, Record<string, { light: string; dark: string }>>
   /** CSS text of every `<style>` tag the bundle appended, in order. */
   appended: string[]
+  /** The `<style>` tags still in head; an unload removes the plugin's own. */
+  head: StubElement[]
   /** Live `body` attribute state the chrome scope toggles. */
   attributes: Map<string, boolean>
   /** Settings writes the cube asked for, as `[field, value]` pairs. */
@@ -63,6 +65,14 @@ export interface Harness {
   renderRow(count: number): void
   /** Drop the plugin the way an unload does. */
   dispose(): void
+}
+
+/** The slice of a `<style>` element the bundle touches. */
+export interface StubElement {
+  textContent: string
+  setAttribute(name: string, value: string): void
+  getAttribute(name: string): string | null
+  remove(): void
 }
 
 /** Snapshot shape the settings scope serves. */
@@ -166,6 +176,7 @@ export function mount(registration: Registration, initial: Snapshot, write: (fie
   }
   const layers = new Map<string, Record<string, { light: string; dark: string }>>()
   const appended: string[] = []
+  const head: StubElement[] = []
   const attributes = new Map<string, boolean>()
   const writes: unknown[][] = []
   const locales: string[] = []
@@ -216,18 +227,27 @@ export function mount(registration: Registration, initial: Snapshot, write: (fie
       toggleAttribute: (name: string, on: boolean): void => { counters.toggleAttribute += 1; attributes.set(name, on) },
       removeAttribute: (name: string): void => { counters.removeAttribute += 1; attributes.delete(name) },
     },
-    createElement: (): { textContent: string } => {
+    createElement: (): StubElement => {
       counters.createElement += 1
       let css = ''
-      return {
+      const elementAttributes = new Map<string, string>()
+      const element: StubElement = {
         get textContent(): string { return css },
         set textContent(value: string) { counters.cssBytes += value.length; css = value },
+        setAttribute: (name, value) => { elementAttributes.set(name, value) },
+        getAttribute: (name) => elementAttributes.get(name) ?? null,
+        remove: () => {
+          const index = head.indexOf(element)
+          if (index !== -1) head.splice(index, 1)
+        },
       }
+      return element
     },
     head: {
-      append: (element: { textContent: string }): void => {
+      append: (element: StubElement): void => {
         counters.headAppend += 1
         appended.push(element.textContent)
+        head.push(element)
       },
     },
   }
@@ -244,6 +264,7 @@ export function mount(registration: Registration, initial: Snapshot, write: (fie
     counters,
     layers,
     appended,
+    head,
     attributes,
     writes,
     locales,
